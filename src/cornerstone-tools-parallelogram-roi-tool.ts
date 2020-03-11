@@ -47,7 +47,6 @@ export default class RotatedEllipticalRoiTool extends BaseAnnotationTool {
     super(props, defaultProps)
 
     this.throttledUpdateCachedStats = throttle(this.updateCachedStats, 110)
-    console.log(cornerstone)
   }
 
   public addNewMeasurement(evt: any) {
@@ -72,11 +71,13 @@ export default class RotatedEllipticalRoiTool extends BaseAnnotationTool {
           // Delete the measurement
           cornerstoneTools.removeToolState(element, this.name, measurementData)
         } else {
-          const center = getCenter(measurementData.handles)
+          measurementData.handles.corner1.x = measurementData.handles.start.x
+          measurementData.handles.corner1.y = measurementData.handles.end.y
+          measurementData.handles.corner1.isFirst = false
 
-          measurementData.handles.perpendicularPoint.x = center.x
-          measurementData.handles.perpendicularPoint.y = center.y
-          measurementData.handles.perpendicularPoint.isFirst = false
+          measurementData.handles.corner2.x = measurementData.handles.end.x
+          measurementData.handles.corner2.y = measurementData.handles.start.y
+          measurementData.handles.corner2.isFirst = false
           this.updateCachedStats(image, element, measurementData)
           cornerstone.triggerEvent(
             element,
@@ -99,7 +100,6 @@ export default class RotatedEllipticalRoiTool extends BaseAnnotationTool {
 
       return
     }
-    console.log(eventData)
     return {
       visible: true,
       active: true,
@@ -121,20 +121,21 @@ export default class RotatedEllipticalRoiTool extends BaseAnnotationTool {
           active: true,
           key: 'end',
         },
-        upperRight: {
-          x: eventData.currentPoints.image.x,
-          y: eventData.currentPoints.image.y,
-          highlight: true,
-          active: true,
-          key: 'upper-right',
-        },
-        perpendicularPoint: {
+        corner1: {
           x: eventData.currentPoints.image.x,
           y: eventData.currentPoints.image.y,
           highlight: true,
           active: false,
           isFirst: true,
-          key: 'perpendicular',
+          key: 'corner1',
+        },
+        corner2: {
+          x: eventData.currentPoints.image.x,
+          y: eventData.currentPoints.image.y,
+          highlight: true,
+          active: false,
+          isFirst: true,
+          key: 'corner2',
         },
         initialRotation: eventData.viewport.rotation,
         textBox: {
@@ -169,66 +170,13 @@ export default class RotatedEllipticalRoiTool extends BaseAnnotationTool {
     }
 
     const distance = interactionType === 'mouse' ? 15 : 25
-    const center = getCenter(data.handles)
-    const startCanvas = cornerstone.pixelToCanvas(element, data.handles.start)
-    const endCanvas = cornerstone.pixelToCanvas(element, data.handles.end)
-    const perpendicularCanvas = cornerstone.pixelToCanvas(
-      element,
-      data.handles.perpendicularPoint,
-    )
-    const centerCanvas = cornerstone.pixelToCanvas(element, center)
-
-    const square = (x: any) => x * x
-    const minorEllipse = {
-      xRadius:
-        Math.sqrt(
-          square(startCanvas.x - endCanvas.x) +
-            square(startCanvas.y - endCanvas.y),
-        ) /
-          2 -
-        distance / 2,
-      yRadius:
-        Math.sqrt(
-          square(perpendicularCanvas.x - centerCanvas.x) +
-            square(perpendicularCanvas.y - centerCanvas.y),
-        ) -
-        distance / 2,
-      center: centerCanvas,
+    console.log('data.hanldes, ', data.handles)
+    for (const handle of data.handles) {
+      console.log('handle, ', handle)
+      const handleCanvas = cornerstone.pixelToCanvas(element, handle)
     }
 
-    const majorEllipse = {
-      xRadius:
-        Math.sqrt(
-          square(startCanvas.x - endCanvas.x) +
-            square(startCanvas.y - endCanvas.y),
-        ) /
-          2 +
-        distance / 2,
-      yRadius:
-        Math.sqrt(
-          square(perpendicularCanvas.x - centerCanvas.x) +
-            square(perpendicularCanvas.y - centerCanvas.y),
-        ) +
-        distance / 2,
-      center: centerCanvas,
-    }
-    const theta = Math.atan2(
-      endCanvas.y - startCanvas.y,
-      endCanvas.x - startCanvas.x,
-    )
-
-    const pointInMinorEllipse = pointInRotatedEllipse(
-      minorEllipse,
-      coords,
-      theta,
-    )
-    const pointInMajorEllipse = pointInRotatedEllipse(
-      majorEllipse,
-      coords,
-      theta,
-    )
-
-    return pointInMajorEllipse && !pointInMinorEllipse
+    return false
   }
 
   public mouseMoveCallback(e: any) {
@@ -302,11 +250,8 @@ export default class RotatedEllipticalRoiTool extends BaseAnnotationTool {
       return
     }
 
-    let i
-
     // Now check to see if there is a handle we can move
-    for (i = 0; i < toolData.data.length; i++) {
-      data = toolData.data[i]
+    for (data of toolData.data) {
       const distance = 6
       const handle = getHandleNearImagePoint(
         element,
@@ -318,14 +263,14 @@ export default class RotatedEllipticalRoiTool extends BaseAnnotationTool {
       if (handle) {
         element.removeEventListener(EVENTS.MOUSE_MOVE, this.mouseMoveCallback)
         data.active = true
-        movePerpendicularHandle(
+        /*movePerpendicularHandle(
           eventData,
           this.name,
           data,
           handle,
           handleDoneMove,
           true,
-        )
+        )*/
         e.stopImmediatePropagation()
         e.stopPropagation()
         e.preventDefault()
@@ -345,8 +290,7 @@ export default class RotatedEllipticalRoiTool extends BaseAnnotationTool {
       preventHandleOutsideImage: false,
     }
 
-    for (i = 0; i < toolData.data.length; i++) {
-      data = toolData.data[i]
+    for (data of toolData.data) {
       data.active = false
       if (this.pointNearTool(element, data, coords)) {
         data.active = true
@@ -367,13 +311,13 @@ export default class RotatedEllipticalRoiTool extends BaseAnnotationTool {
     const modality = seriesModule.modality
     const pixelSpacing = getPixelSpacing(image)
 
-    data.cachedStats = _calculateStats(
+    /*data.cachedStats = _calculateStats(
       image,
       element,
       data.handles,
       modality,
       pixelSpacing,
-    )
+    )*/
     data.invalidated = false
   }
 
@@ -417,25 +361,13 @@ export default class RotatedEllipticalRoiTool extends BaseAnnotationTool {
         setShadow(ctx, this.configuration)
 
         // Draw
-        drawRotatedEllipse(
-          ctx,
-          element,
-          data.handles.start,
-          data.handles.end,
-          data.handles.perpendicularPoint,
-          {
-            color,
-          },
-          'pixel',
-          data.handles.initialRotation,
-        )
         drawParallelogram(
           ctx,
           element,
           data.handles.start,
           data.handles.end,
-          { x: 0, y: 0 },
-          { x: 0, y: 0 },
+          data.handles.corner1,
+          data.handles.corner2,
           {
             color,
           },
@@ -509,8 +441,12 @@ function _findTextBoxAnchorPoints(handles: any) {
       y: handles.end.y,
     },
     {
-      x: handles.perpendicularPoint.x,
-      y: handles.perpendicularPoint.y,
+      x: handles.corner1.x,
+      y: handles.corner1.y,
+    },
+    {
+      x: handles.corner2.x,
+      y: handles.corner2.y,
     },
   ]
 }
@@ -591,7 +527,7 @@ function _createTextBoxContent(
     }
   }
 
-  textLines.push(_formatArea(area, hasPixelSpacing))
+  // textLines.push(_formatArea(area, hasPixelSpacing))
   otherLines.forEach(x => textLines.push(x))
 
   return textLines

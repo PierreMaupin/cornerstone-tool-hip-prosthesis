@@ -36,8 +36,9 @@ export default function(
   if (coordSystem === 'pixel') {
     corner1 = cornerstone.pixelToCanvas(element, corner1)
     corner2 = cornerstone.pixelToCanvas(element, corner2)
+    corner3 = cornerstone.pixelToCanvas(element, corner3)
+    corner4 = cornerstone.pixelToCanvas(element, corner4)
   }
-  console.log(corner1, corner2)
   const viewport = cornerstone.getViewport(element)
 
   // Calculate the center of the image
