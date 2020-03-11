@@ -55,30 +55,6 @@ export default function(
     corner1 = rotatePoint(corner1, centerPoint, -rotation)
     corner2 = rotatePoint(corner2, centerPoint, -rotation)
   }
-
-  const w = Math.abs(corner1.x - corner2.x)
-  const h = Math.abs(corner1.y - corner2.y)
-
-  corner1 = {
-    x: Math.min(corner1.x, corner2.x),
-    y: Math.min(corner1.y, corner2.y),
-  }
-
-  corner2 = {
-    x: corner1.x + w,
-    y: corner1.y + h,
-  }
-
-  corner3 = {
-    x: corner1.x + w,
-    y: corner1.y,
-  }
-
-  corner4 = {
-    x: corner1.x,
-    y: corner1.y + h,
-  }
-
   if (Math.abs(rotation) > 0.05) {
     corner1 = rotatePoint(corner1, centerPoint, rotation)
     corner2 = rotatePoint(corner2, centerPoint, rotation)

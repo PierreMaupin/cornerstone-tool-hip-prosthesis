@@ -1,13 +1,11 @@
 import cornerstone from 'cornerstone-core'
 import cornerstoneTools from 'cornerstone-tools'
 import { rotatedEllipticalRoiCursor } from './cursor'
-import pointInRotatedEllipse from './util/pointInRotatedEllipse'
-import movePerpendicularHandle from './manipulators/movePerpendicularHandle'
-import drawRotatedEllipse from './drawing/drawRotatedEllipse'
 import getROITextBoxCoords from './util/getROITextBoxCoords'
 import calculateRotatedEllipseStatistics from './util/calculateRotatedEllipseStatistics'
 import { setToolCursor } from './setToolCursor'
 import drawParallelogram from './drawing/drawParallelogram'
+import moveCornerHandle from './manipulators/moveCornerHandle'
 
 const BaseAnnotationTool = cornerstoneTools.import('base/BaseAnnotationTool')
 const throttle = cornerstoneTools.import('util/throttle')
@@ -150,35 +148,6 @@ export default class RotatedEllipticalRoiTool extends BaseAnnotationTool {
     }
   }
 
-  public pointNearTool(
-    element: any,
-    data: any,
-    coords: any,
-    interactionType: any = 'mouse',
-  ) {
-    const validParameters =
-      data && data.handles && data.handles.start && data.handles.end
-
-    if (!validParameters) {
-      logger.warn(
-        `invalid parameters supplied to tool ${this.name}'s pointNearTool`,
-      )
-    }
-
-    if (!validParameters || !data.visible) {
-      return false
-    }
-
-    const distance = interactionType === 'mouse' ? 15 : 25
-    console.log('data.hanldes, ', data.handles)
-    for (const handle of data.handles) {
-      console.log('handle, ', handle)
-      const handleCanvas = cornerstone.pixelToCanvas(element, handle)
-    }
-
-    return false
-  }
-
   public mouseMoveCallback(e: any) {
     const eventData = e.detail
     const { element } = eventData
@@ -263,14 +232,14 @@ export default class RotatedEllipticalRoiTool extends BaseAnnotationTool {
       if (handle) {
         element.removeEventListener(EVENTS.MOUSE_MOVE, this.mouseMoveCallback)
         data.active = true
-        /*movePerpendicularHandle(
+        moveCornerHandle(
           eventData,
           this.name,
           data,
           handle,
           handleDoneMove,
           true,
-        )*/
+        )
         e.stopImmediatePropagation()
         e.stopPropagation()
         e.preventDefault()
@@ -303,6 +272,48 @@ export default class RotatedEllipticalRoiTool extends BaseAnnotationTool {
         return
       }
     }
+  }
+
+  public pointNearTool(
+    element: any,
+    data: any,
+    coords: any,
+    interactionType: any = 'mouse',
+  ) {
+    const validParameters =
+      data && data.handles && data.handles.start && data.handles.end
+
+    if (!validParameters) {
+      logger.warn(
+        `invalid parameters supplied to tool ${this.name}'s pointNearTool`,
+      )
+    }
+
+    if (!validParameters || !data.visible) {
+      return false
+    }
+
+    const distance = interactionType === 'mouse' ? 15 : 25
+    function points(handles: any) {
+      const allPoints = Object.keys(handles).map(key => ({
+        x: handles[key].x,
+        y: handles[key].y,
+      }))
+      return allPoints.slice(0, 4)
+    }
+    const pts = points(data.handles)
+    for (const point of pts) {
+      const handle = cornerstone.pixelToCanvas(element, point)
+      const delta = {
+        x: handle.x - coords.x,
+        y: handle.y - coords.y,
+      }
+      const dist = Math.sqrt(delta.x * delta.x + delta.y * delta.y)
+      if (dist <= distance) {
+        return handle
+      }
+    }
+    return false
   }
 
   public updateCachedStats(image: any, element: HTMLElement, data: any) {
