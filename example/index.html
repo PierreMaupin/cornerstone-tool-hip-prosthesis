@@ -8,8 +8,8 @@
         background: dodgerblue;
       }
       #cornerstone-element {
-        width: 512px;
-        height: 512px;
+        width: 100%;
+        height: 100%;
         margin: 0 auto;
         background: #ccc;
       }
@@ -59,21 +59,24 @@
     cornerstone.enable(element);
     // Load and Display Image
     const exampleImageId =
-      "https://rawgit.com/dannyrb/cornerstone-vuejs-poc/master/static/simple-study/1.2.276.0.74.3.1167540280.200511.112514.1.1.10.jpg";
+      "https://i.ibb.co/PxC9DHQ/Screenshot-20200309-090021.png";
     cornerstone.loadImage(exampleImageId).then(function(image) {
       cornerstone.displayImage(element, image);
 
       const WwwcTool = cornerstoneTools.WwwcTool;
       const PanTool = cornerstoneTools.PanTool;
       const EraserTool = cornerstoneTools.EraserTool;
+      const ZoomTool = cornerstoneTools.ZoomTool;
       cornerstoneTools.addTool(WwwcTool);
       cornerstoneTools.addTool(PanTool);
       cornerstoneTools.addTool(EraserTool);
+      cornerstoneTools.addTool(ZoomTool);
+
       cornerstoneTools.setToolActive("Pan", { mouseButtonMask: 4 });
-      cornerstoneTools.setToolActive("Eraser", { mouseButtonMask: 2 });
+      cornerstoneTools.setToolActive("Zoom", { mouseButtonMask: 2 });
 
       cornerstoneTools.addTool(ParallelogramRoiTool);
-      cornerstoneTools.setToolActive("RotatedEllipticalRoi", { mouseButtonMask: 1 });
+      cornerstoneTools.setToolActive("ParallelogramRoi", { mouseButtonMask: 1 });
     });
   </script>
 </html>

@@ -6,6 +6,9 @@ import calculateRotatedEllipseStatistics from './util/calculateRotatedEllipseSta
 import { setToolCursor } from './setToolCursor'
 import drawParallelogram from './drawing/drawParallelogram'
 import moveCornerHandle from './manipulators/moveCornerHandle'
+import getQuadrilateralPoints from './util/getQuadrilateralPoints'
+import drawMiddleLine from './drawing/drawMiddleLine'
+import { log } from 'util'
 
 const BaseAnnotationTool = cornerstoneTools.import('base/BaseAnnotationTool')
 const throttle = cornerstoneTools.import('util/throttle')
@@ -30,10 +33,10 @@ const drawLinkedTextBox = cornerstoneTools.import('drawing/drawLinkedTextBox')
 const numbersWithCommas = cornerstoneTools.import('util/numbersWithCommas')
 const calculateSUV = cornerstoneTools.import('util/calculateSUV')
 
-export default class RotatedEllipticalRoiTool extends BaseAnnotationTool {
+export default class ParallelogramRoiTool extends BaseAnnotationTool {
   constructor(props = {}) {
     const defaultProps = {
-      name: 'RotatedEllipticalRoi',
+      name: 'ParallelogramRoi',
       supportedInteractionTypes: ['Mouse', 'Touch'],
       configuration: {
         // showMinMax: false,
@@ -71,11 +74,14 @@ export default class RotatedEllipticalRoiTool extends BaseAnnotationTool {
         } else {
           measurementData.handles.corner1.x = measurementData.handles.start.x
           measurementData.handles.corner1.y = measurementData.handles.end.y
+          measurementData.handles.corner1.position = 'end'
           measurementData.handles.corner1.isFirst = false
 
           measurementData.handles.corner2.x = measurementData.handles.end.x
           measurementData.handles.corner2.y = measurementData.handles.start.y
+          measurementData.handles.corner2.position = 'start'
           measurementData.handles.corner2.isFirst = false
+
           this.updateCachedStats(image, element, measurementData)
           cornerstone.triggerEvent(
             element,
@@ -108,6 +114,7 @@ export default class RotatedEllipticalRoiTool extends BaseAnnotationTool {
         start: {
           x: eventData.currentPoints.image.x,
           y: eventData.currentPoints.image.y,
+          position: 'start',
           highlight: true,
           active: false,
           key: 'start',
@@ -115,6 +122,7 @@ export default class RotatedEllipticalRoiTool extends BaseAnnotationTool {
         end: {
           x: eventData.currentPoints.image.x,
           y: eventData.currentPoints.image.y,
+          position: 'end',
           highlight: true,
           active: true,
           key: 'end',
@@ -122,6 +130,7 @@ export default class RotatedEllipticalRoiTool extends BaseAnnotationTool {
         corner1: {
           x: eventData.currentPoints.image.x,
           y: eventData.currentPoints.image.y,
+          position: null,
           highlight: true,
           active: false,
           isFirst: true,
@@ -130,6 +139,7 @@ export default class RotatedEllipticalRoiTool extends BaseAnnotationTool {
         corner2: {
           x: eventData.currentPoints.image.x,
           y: eventData.currentPoints.image.y,
+          position: null,
           highlight: true,
           active: false,
           isFirst: true,
@@ -294,15 +304,8 @@ export default class RotatedEllipticalRoiTool extends BaseAnnotationTool {
     }
 
     const distance = interactionType === 'mouse' ? 15 : 25
-    function points(handles: any) {
-      const allPoints = Object.keys(handles).map(key => ({
-        x: handles[key].x,
-        y: handles[key].y,
-      }))
-      return allPoints.slice(0, 4)
-    }
-    const pts = points(data.handles)
-    for (const point of pts) {
+    const points = getQuadrilateralPoints(data)
+    for (const point of points) {
       const handle = cornerstone.pixelToCanvas(element, point)
       const delta = {
         x: handle.x - coords.x,
@@ -322,13 +325,8 @@ export default class RotatedEllipticalRoiTool extends BaseAnnotationTool {
     const modality = seriesModule.modality
     const pixelSpacing = getPixelSpacing(image)
 
-    /*data.cachedStats = _calculateStats(
-      image,
-      element,
-      data.handles,
-      modality,
-      pixelSpacing,
-    )*/
+    const points = getQuadrilateralPoints(data)
+
     data.invalidated = false
   }
 
@@ -360,7 +358,6 @@ export default class RotatedEllipticalRoiTool extends BaseAnnotationTool {
         if (!data.visible) {
           continue
         }
-
         // Configure
         const color = cornerstoneTools.toolColors.getColorIfActive(data)
         const handleOptions = {
@@ -385,6 +382,36 @@ export default class RotatedEllipticalRoiTool extends BaseAnnotationTool {
           'pixel',
           data.handles.initialRotation,
         )
+        const point1 = { x: 0, y: 0 }
+        const point2 = { x: 0, y: 0 }
+        console.log(data.handles)
+        Object.keys(data.handles).forEach(handle => {
+          const point = data.handles[handle]
+          if (data.handles[handle].position === 'start') {
+            point1.x += point.x
+            point1.y += point.y
+          } else if (data.handles[handle].position === 'end') {
+            point2.x += point.x
+            point2.y += point.y
+          }
+        })
+        point1.x /= 2
+        point1.y /= 2
+        point2.x /= 2
+        point2.y /= 2
+        console.log(point1, point2)
+        drawMiddleLine(
+          ctx,
+          element,
+          point1,
+          point2,
+          {
+            color,
+          },
+          'pixel',
+          data.handles.initialRotation,
+        )
+
         drawHandles(ctx, eventData, data.handles, handleOptions)
 
         // Update textbox stats
