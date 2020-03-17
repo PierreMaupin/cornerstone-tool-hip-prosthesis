@@ -9,6 +9,7 @@ import moveCornerHandle from './manipulators/moveCornerHandle'
 import getQuadrilateralPoints from './util/getQuadrilateralPoints'
 import drawMiddleLine from './drawing/drawMiddleLine'
 import { log } from 'util'
+import findLine from './util/findMiddleLine'
 
 const BaseAnnotationTool = cornerstoneTools.import('base/BaseAnnotationTool')
 const throttle = cornerstoneTools.import('util/throttle')
@@ -382,29 +383,12 @@ export default class ParallelogramRoiTool extends BaseAnnotationTool {
           'pixel',
           data.handles.initialRotation,
         )
-        const point1 = { x: 0, y: 0 }
-        const point2 = { x: 0, y: 0 }
-        console.log(data.handles)
-        Object.keys(data.handles).forEach(handle => {
-          const point = data.handles[handle]
-          if (data.handles[handle].position === 'start') {
-            point1.x += point.x
-            point1.y += point.y
-          } else if (data.handles[handle].position === 'end') {
-            point2.x += point.x
-            point2.y += point.y
-          }
-        })
-        point1.x /= 2
-        point1.y /= 2
-        point2.x /= 2
-        point2.y /= 2
-        console.log(point1, point2)
+        const middleLine = findLine(context, data)
         drawMiddleLine(
           ctx,
           element,
-          point1,
-          point2,
+          middleLine.point1,
+          middleLine.point2,
           {
             color,
           },

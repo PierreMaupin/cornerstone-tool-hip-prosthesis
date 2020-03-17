@@ -40,22 +40,8 @@ export default function(
   const { clientWidth: width, clientHeight: height } = element
   const { scale, translation } = viewport
   const rotation = viewport.rotation - initialRotation
-
-  const slope = (point2.y - point1.y) / (point2.x - point1.x)
-  // y = mx + b | b = y - mx
-  const intercept = point2.y - slope * point2.x
-
-  function getY(x: any) {
-    return slope * x + intercept
-  }
-  function getX(y: any) {
-    return (y - intercept) / slope
-  }
-
   path(context, options, (ctx: any) => {
-    ctx.moveTo(getX(0), 0)
-    ctx.lineTo(point1.x, point1.y)
+    ctx.moveTo(point1.x, point1.y)
     ctx.lineTo(point2.x, point2.y)
-    ctx.lineTo(getX(ctx.canvas.height), ctx.canvas.height)
   })
 }
