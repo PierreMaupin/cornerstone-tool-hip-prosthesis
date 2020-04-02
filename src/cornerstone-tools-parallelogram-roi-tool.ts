@@ -8,8 +8,9 @@ import drawParallelogram from './drawing/drawParallelogram'
 import moveCornerHandle from './manipulators/moveCornerHandle'
 import getQuadrilateralPoints from './util/getQuadrilateralPoints'
 import drawMiddleLine from './drawing/drawMiddleLine'
-import { log } from 'util'
 import findLine from './util/findMiddleLine'
+import drawCircle from './drawing/drawCircle'
+import cornerstoneMath from 'cornerstone-math'
 
 const BaseAnnotationTool = cornerstoneTools.import('base/BaseAnnotationTool')
 const throttle = cornerstoneTools.import('util/throttle')
@@ -48,10 +49,18 @@ export default class ParallelogramRoiTool extends BaseAnnotationTool {
 
     super(props, defaultProps)
 
+    this.addedTools = []
+
     this.throttledUpdateCachedStats = throttle(this.updateCachedStats, 110)
   }
 
   public addNewMeasurement(evt: any) {
+    if (
+      this.addedTools.includes('quadrilateral') &&
+      this.addedTools.includes('circle')
+    ) {
+      return
+    }
     const eventData = evt.detail
     const { element, image } = eventData
     const measurementData: any = this.createNewMeasurement(eventData)
@@ -73,15 +82,19 @@ export default class ParallelogramRoiTool extends BaseAnnotationTool {
           // Delete the measurement
           cornerstoneTools.removeToolState(element, this.name, measurementData)
         } else {
-          measurementData.handles.corner1.x = measurementData.handles.start.x
-          measurementData.handles.corner1.y = measurementData.handles.end.y
-          measurementData.handles.corner1.position = 'end'
-          measurementData.handles.corner1.isFirst = false
+          if (measurementData.tool === 'quadrilateral') {
+            measurementData.handles.corner1.x = measurementData.handles.start.x
+            measurementData.handles.corner1.y = measurementData.handles.end.y
+            measurementData.handles.corner1.position = 'end'
+            measurementData.handles.corner1.isFirst = false
 
-          measurementData.handles.corner2.x = measurementData.handles.end.x
-          measurementData.handles.corner2.y = measurementData.handles.start.y
-          measurementData.handles.corner2.position = 'start'
-          measurementData.handles.corner2.isFirst = false
+            measurementData.handles.corner2.x = measurementData.handles.end.x
+            measurementData.handles.corner2.y = measurementData.handles.start.y
+            measurementData.handles.corner2.position = 'start'
+            measurementData.handles.corner2.isFirst = false
+          } else if (measurementData.tool === 'circle') {
+            // nothing for now...
+          }
 
           this.updateCachedStats(image, element, measurementData)
           cornerstone.triggerEvent(
@@ -105,57 +118,95 @@ export default class ParallelogramRoiTool extends BaseAnnotationTool {
 
       return
     }
-    return {
-      visible: true,
-      active: true,
-      color: undefined,
-      invalidated: true,
-      shortestDistance: 0,
-      handles: {
-        start: {
-          x: eventData.currentPoints.image.x,
-          y: eventData.currentPoints.image.y,
-          position: 'start',
-          highlight: true,
-          active: false,
-          key: 'start',
+    if (!this.addedTools.includes('quadrilateral')) {
+      this.addedTools.push('quadrilateral')
+      return {
+        tool: 'quadrilateral',
+        visible: true,
+        active: true,
+        color: undefined,
+        invalidated: true,
+        shortestDistance: 0,
+        handles: {
+          start: {
+            x: eventData.currentPoints.image.x,
+            y: eventData.currentPoints.image.y,
+            position: 'start',
+            highlight: true,
+            active: false,
+            key: 'start',
+          },
+          end: {
+            x: eventData.currentPoints.image.x,
+            y: eventData.currentPoints.image.y,
+            position: 'end',
+            highlight: true,
+            active: true,
+            key: 'end',
+          },
+          corner1: {
+            x: eventData.currentPoints.image.x,
+            y: eventData.currentPoints.image.y,
+            position: null,
+            highlight: true,
+            active: false,
+            isFirst: true,
+            key: 'corner1',
+          },
+          corner2: {
+            x: eventData.currentPoints.image.x,
+            y: eventData.currentPoints.image.y,
+            position: null,
+            highlight: true,
+            active: false,
+            isFirst: true,
+            key: 'corner2',
+          },
+          initialRotation: eventData.viewport.rotation,
+          textBox: {
+            active: false,
+            hasMoved: false,
+            movesIndependently: false,
+            drawnIndependently: true,
+            allowedOutsideImage: true,
+            hasBoundingBox: true,
+          },
         },
-        end: {
-          x: eventData.currentPoints.image.x,
-          y: eventData.currentPoints.image.y,
-          position: 'end',
-          highlight: true,
-          active: true,
-          key: 'end',
+      }
+    } else if (!this.addedTools.includes('circle')) {
+      this.addedTools.push('circle')
+      return {
+        tool: 'circle',
+        visible: true,
+        active: true,
+        color: undefined,
+        invalidated: true,
+        shortestDistance: 0,
+        handles: {
+          start: {
+            x: eventData.currentPoints.image.x,
+            y: eventData.currentPoints.image.y,
+            highlight: true,
+            active: false,
+            key: 'start',
+          },
+          end: {
+            x: eventData.currentPoints.image.x,
+            y: eventData.currentPoints.image.y,
+            highlight: true,
+            active: true,
+            key: 'end',
+          },
+          textBox: {
+            active: false,
+            hasMoved: false,
+            movesIndependently: false,
+            drawnIndependently: true,
+            allowedOutsideImage: true,
+            hasBoundingBox: true,
+          },
         },
-        corner1: {
-          x: eventData.currentPoints.image.x,
-          y: eventData.currentPoints.image.y,
-          position: null,
-          highlight: true,
-          active: false,
-          isFirst: true,
-          key: 'corner1',
-        },
-        corner2: {
-          x: eventData.currentPoints.image.x,
-          y: eventData.currentPoints.image.y,
-          position: null,
-          highlight: true,
-          active: false,
-          isFirst: true,
-          key: 'corner2',
-        },
-        initialRotation: eventData.viewport.rotation,
-        textBox: {
-          active: false,
-          hasMoved: false,
-          movesIndependently: false,
-          drawnIndependently: true,
-          allowedOutsideImage: true,
-          hasBoundingBox: true,
-        },
-      },
+      }
     }
   }
 
@@ -177,6 +228,9 @@ export default class ParallelogramRoiTool extends BaseAnnotationTool {
     let imageNeedsUpdate = false
 
     for (const data of toolData.data) {
+      if (!(data && data.handles)) {
+        break
+      }
       // Get the cursor position in canvas coordinates
       const coords = eventData.currentPoints.canvas
 
@@ -368,34 +422,58 @@ export default class ParallelogramRoiTool extends BaseAnnotationTool {
         }
 
         setShadow(ctx, this.configuration)
+        if (data.tool === 'quadrilateral') {
+          // Draw
+          drawParallelogram(
+            ctx,
+            element,
+            data.handles.start,
+            data.handles.end,
+            data.handles.corner1,
+            data.handles.corner2,
+            {
+              color,
+            },
+            'pixel',
+            data.handles.initialRotation,
+          )
+          const middleLine = findLine(context, data)
+          drawMiddleLine(
+            ctx,
+            element,
+            middleLine.point1,
+            middleLine.point2,
+            {
+              color,
+            },
+            'pixel',
+            data.handles.initialRotation,
+          )
+        } else if (data.tool === 'circle') {
+          const getDistance = cornerstoneMath.point.distance
 
-        // Draw
-        drawParallelogram(
-          ctx,
-          element,
-          data.handles.start,
-          data.handles.end,
-          data.handles.corner1,
-          data.handles.corner2,
-          {
-            color,
-          },
-          'pixel',
-          data.handles.initialRotation,
-        )
-        const middleLine = findLine(context, data)
-        drawMiddleLine(
-          ctx,
-          element,
-          middleLine.point1,
-          middleLine.point2,
-          {
-            color,
-          },
-          'pixel',
-          data.handles.initialRotation,
-        )
+          const startCanvas = cornerstone.pixelToCanvas(
+            element,
+            data.handles.start,
+          )
 
+          const endCanvas = cornerstone.pixelToCanvas(element, data.handles.end)
+
+          // Calculating the radius where startCanvas is the center of the circle to be drawn
+          const radius = getDistance(startCanvas, endCanvas)
+
+          // Draw Circle
+          drawCircle(
+            context,
+            element,
+            data.handles.start,
+            radius,
+            {
+              color,
+            },
+            'pixel',
+          )
+        }
         drawHandles(ctx, eventData, data.handles, handleOptions)
 
         // Update textbox stats
