@@ -1,7 +1,6 @@
 export default function(context: any, data: any) {
   const point1 = { x: 0, y: 0 }
   const point2 = { x: 0, y: 0 }
-  console.log(data.handles)
   Object.keys(data.handles).forEach(handle => {
     const point = data.handles[handle]
     if (data.handles[handle].position === 'start') {

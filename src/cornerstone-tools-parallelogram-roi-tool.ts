@@ -7,10 +7,12 @@ import { setToolCursor } from './setToolCursor'
 import drawParallelogram from './drawing/drawParallelogram'
 import moveCornerHandle from './manipulators/moveCornerHandle'
 import getQuadrilateralPoints from './util/getQuadrilateralPoints'
-import drawMiddleLine from './drawing/drawMiddleLine'
+import drawLine from './drawing/drawLine'
 import findLine from './util/findMiddleLine'
 import drawCircle from './drawing/drawCircle'
 import cornerstoneMath from 'cornerstone-math'
+import findPerpendicularPoint from './util/findPerpendicularPoint'
+import findMiddleLine from './util/findMiddleLine'
 
 const BaseAnnotationTool = cornerstoneTools.import('base/BaseAnnotationTool')
 const throttle = cornerstoneTools.import('util/throttle')
@@ -50,6 +52,8 @@ export default class ParallelogramRoiTool extends BaseAnnotationTool {
     super(props, defaultProps)
 
     this.addedTools = []
+    this.middleLine = null
+    this.perpPoint = null
 
     this.throttledUpdateCachedStats = throttle(this.updateCachedStats, 110)
   }
@@ -437,12 +441,12 @@ export default class ParallelogramRoiTool extends BaseAnnotationTool {
             'pixel',
             data.handles.initialRotation,
           )
-          const middleLine = findLine(context, data)
-          drawMiddleLine(
+          this.middleLine = findLine(context, data)
+          drawLine(
             ctx,
             element,
-            middleLine.point1,
-            middleLine.point2,
+            this.middleLine.point1,
+            this.middleLine.point2,
             {
               color,
             },
@@ -472,6 +476,28 @@ export default class ParallelogramRoiTool extends BaseAnnotationTool {
               color,
             },
             'pixel',
+          )
+        }
+        if (
+          this.addedTools.includes('quadrilateral') &&
+          this.addedTools.includes('circle')
+        ) {
+          const toolsData = cornerstoneTools.getToolState(element, this.name)
+          this.perpPoint = findPerpendicularPoint(
+            this.middleLine.point1,
+            this.middleLine.point2,
+            toolsData.data[1].handles.start,
+          )
+          drawLine(
+            ctx,
+            element,
+            toolsData.data[1].handles.start,
+            this.perpPoint,
+            {
+              color,
+            },
+            'pixel',
+            data.handles.initialRotation,
           )
         }
         drawHandles(ctx, eventData, data.handles, handleOptions)
