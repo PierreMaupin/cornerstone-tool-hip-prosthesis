@@ -1,18 +1,17 @@
 {
-  "name": "cornerstone-tools-parallelogram-roi-tool",
+  "name": "cornerstone-tools-hip-prosthesis-tool",
   "version": "0.0.0",
   "description": "An annotation tool for drawing a parallelogram roi. It is 3rd party library for cornerstoneTools",
   "keywords": [
     "cornerstone",
     "cornerstoneTools",
-    "ParallelogramRoi",
     "medical",
     "image",
     "annotation"
   ],
-  "main": "dist/parallelogram-roi-tool.umd.js",
-  "module": "dist/parallelogram-roi-tool.es5.js",
-  "typings": "dist/types/parallelogram-roi-tool.d.ts",
+  "main": "dist/hip-prosthesis-tool.umd.js",
+  "module": "dist/hip-prosthesis-tool.es5.js",
+  "typings": "dist/types/hip-prosthesis-tool.d.ts",
   "files": [
     "dist"
   ],

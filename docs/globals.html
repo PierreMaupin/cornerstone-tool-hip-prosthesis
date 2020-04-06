@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>cornerstone-tools-parallelogram-roi-tool | cornerstone-tools-parallelogram-roi-tool</title>
+	<title>cornerstone-tools-hip-prosthesis-tool | cornerstone-tools-hip-prosthesis-tool</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<style type="text/css">/*! normalize.css v1.1.3 | MIT License | git.io/normalize */
@@ -879,7 +879,7 @@ img { max-width: 100%; }
 		<div class="container">
 			<div class="table-wrap">
 				<div class="table-cell">
-					<strong><a href="index.html">cornerstone-tools-parallelogram-roi-tool</a></strong>
+					<strong><a href="index.html">cornerstone-tools-hip-prosthesis-tool</a></strong>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -1052,15 +1052,15 @@ img { max-width: 100%; }
 <div class="container container-main">
 	<div class="content-wrap">
 		<div class="tsd-panel tsd-typography">
-			<h1 id="cornerstonetools-parallelogramroitool">cornerstoneTools-ParallelogramRoiTool</h1>
+			<h1 id="cornerstonetools-HipProsthesisTool">cornerstoneTools-HipProsthesisTool</h1>
 			<p>An annotation tool of drawing rotated elliptical roi. It is 3rd party library of <a href="https://github.com/cornerstonejs/cornerstoneTools">cornerstoneTools</a>.<br>
 			You can try to test this tool in <a href="https://examples.sisobus.com/rotated-elliptical-roi">here</a></p>
 			<h2 id="demo">Demo</h2>
 			<img src="https://user-images.githubusercontent.com/3329885/58860190-87c5d480-86e6-11e9-9564-018ad626ae30.gif" width="400">
 			<h2 id="installation">Installation</h2>
-			<pre><code class="language-sh">$ yarn add cornerstone-tools-parallelogram-roi-tool</code></pre>
+			<pre><code class="language-sh">$ yarn add cornerstone-tools-hip-prosthesis-tool</code></pre>
 			<p>or</p>
-			<pre><code class="language-sh">$ npm i cornerstone-tools-parallelogram-roi-tool</code></pre>
+			<pre><code class="language-sh">$ npm i cornerstone-tools-hip-prosthesis-tool</code></pre>
 			<p>This library has dependencies below</p>
 			<ul>
 				<li><a href="https://github.com/cornerstonejs/cornerstone">cornerstone-core</a></li>
@@ -1068,21 +1068,21 @@ img { max-width: 100%; }
 				<li><a href="https://github.com/cornerstonejs/cornerstoneMath">cornerstone-math</a></li>
 			</ul>
 			<h2 id="examples">Examples</h2>
-			<h4 id="browser-example">browser <a href="https://github.com/sisobus/cornerstoneTools-ParallelogramRoiTool/blob/master/example/index.html">example</a></h4>
-			<pre><code class="language-html"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"../dist/parallelogram-roi-tool.umd.js"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+			<h4 id="browser-example">browser <a href="https://github.com/sisobus/cornerstoneTools-HipProsthesisTool/blob/master/example/index.html">example</a></h4>
+			<pre><code class="language-html"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"../dist/hip-prosthesis-tool.umd.js"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="actionscript">
   cornerstoneTools.init({
     showSVGCursors: <span class="hljs-literal">true</span>,
   });
-  cornerstoneTools.addTool(ParallelogramRoiTool);
+  cornerstoneTools.addTool(HipProsthesisTool);
   cornerstoneTools.setToolActive(<span class="hljs-string">"RotatedEllipticalRoi"</span>, { mouseButtonMask: <span class="hljs-number">1</span> });
 </span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span></code></pre>
-			<h4 id="node-example">node <a href="https://github.com/sisobus/cornerstoneTools-ParallelogramRoiTool/blob/master/example/react.js">example</a></h4>
-			<pre><code class="language-js"><span class="hljs-keyword">import</span> ParallelogramRoiTool <span class="hljs-keyword">from</span> <span class="hljs-string">"cornerstone-tools-parallelogram-roi-tool"</span>;
+			<h4 id="node-example">node <a href="https://github.com/sisobus/cornerstoneTools-HipProsthesisTool/blob/master/example/react.js">example</a></h4>
+			<pre><code class="language-js"><span class="hljs-keyword">import</span> HipProsthesisTool <span class="hljs-keyword">from</span> <span class="hljs-string">"cornerstone-tools-hip-prosthesis-tool"</span>;
 cornerstoneTools.init({
   <span class="hljs-attr">showSVGCursors</span>: <span class="hljs-literal">true</span>,
 })
-cornerstoneTools.addTool(ParallelogramRoiTool)
+cornerstoneTools.addTool(HipProsthesisTool)
 cornerstoneTools.setToolActive(<span class="hljs-string">"RotatedEllipticalRoi"</span>, {
   <span class="hljs-attr">mouseButtonMask</span>: <span class="hljs-number">1</span>,
 })</code></pre>
@@ -1167,7 +1167,7 @@ cornerstoneTools.setToolActive(<span class="hljs-string">"RotatedEllipticalRoi"<
 					<ul>
 						<li>Defined in util/getActiveTool.ts:3</li>
 						<li>Defined in manipulators/movePerpendicularHandle.ts:7</li>
-						<li>Defined in cornerstone-tools-parallelogram-roi-tool.ts:11</li>
+						<li>Defined in cornerstone-tools-hip-prosthesis-tool.ts:11</li>
 					</ul>
 				</aside>
 			</section>
@@ -1188,7 +1188,7 @@ cornerstoneTools.setToolActive(<span class="hljs-string">"RotatedEllipticalRoi"<
 				<aside class="tsd-sources">
 					<ul>
 						<li>Defined in manipulators/movePerpendicularHandle.ts:4</li>
-						<li>Defined in cornerstone-tools-parallelogram-roi-tool.ts:13</li>
+						<li>Defined in cornerstone-tools-hip-prosthesis-tool.ts:13</li>
 					</ul>
 				</aside>
 			</section>
@@ -1208,7 +1208,7 @@ cornerstoneTools.setToolActive(<span class="hljs-string">"RotatedEllipticalRoi"<
 				<div class="tsd-signature tsd-kind-icon">any<wbr>Handles<wbr>Outside<wbr>Image<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;cornerstoneTools.import(&#x27;manipulators/anyHandlesOutsideImage&#x27;,)</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in cornerstone-tools-parallelogram-roi-tool.ts:17</li>
+						<li>Defined in cornerstone-tools-hip-prosthesis-tool.ts:17</li>
 					</ul>
 				</aside>
 			</section>
@@ -1218,7 +1218,7 @@ cornerstoneTools.setToolActive(<span class="hljs-string">"RotatedEllipticalRoi"<
 				<div class="tsd-signature tsd-kind-icon">calculateSUV<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;cornerstoneTools.import(&#x27;util/calculateSUV&#x27;)</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in cornerstone-tools-parallelogram-roi-tool.ts:32</li>
+						<li>Defined in cornerstone-tools-hip-prosthesis-tool.ts:32</li>
 					</ul>
 				</aside>
 			</section>
@@ -1238,7 +1238,7 @@ cornerstoneTools.setToolActive(<span class="hljs-string">"RotatedEllipticalRoi"<
 				<div class="tsd-signature tsd-kind-icon">draw<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;cornerstoneTools.import(&#x27;drawing/draw&#x27;)</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in cornerstone-tools-parallelogram-roi-tool.ts:27</li>
+						<li>Defined in cornerstone-tools-hip-prosthesis-tool.ts:27</li>
 					</ul>
 				</aside>
 			</section>
@@ -1248,7 +1248,7 @@ cornerstoneTools.setToolActive(<span class="hljs-string">"RotatedEllipticalRoi"<
 				<div class="tsd-signature tsd-kind-icon">draw<wbr>Handles<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;cornerstoneTools.import(&#x27;drawing/drawHandles&#x27;)</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in cornerstone-tools-parallelogram-roi-tool.ts:29</li>
+						<li>Defined in cornerstone-tools-hip-prosthesis-tool.ts:29</li>
 					</ul>
 				</aside>
 			</section>
@@ -1258,7 +1258,7 @@ cornerstoneTools.setToolActive(<span class="hljs-string">"RotatedEllipticalRoi"<
 				<div class="tsd-signature tsd-kind-icon">draw<wbr>Linked<wbr>Text<wbr>Box<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;cornerstoneTools.import(&#x27;drawing/drawLinkedTextBox&#x27;)</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in cornerstone-tools-parallelogram-roi-tool.ts:30</li>
+						<li>Defined in cornerstone-tools-hip-prosthesis-tool.ts:30</li>
 					</ul>
 				</aside>
 			</section>
@@ -1268,7 +1268,7 @@ cornerstoneTools.setToolActive(<span class="hljs-string">"RotatedEllipticalRoi"<
 				<div class="tsd-signature tsd-kind-icon">get<wbr>Handle<wbr>Near<wbr>Image<wbr>Point<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;cornerstoneTools.import(&#x27;manipulators/getHandleNearImagePoint&#x27;,)</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in cornerstone-tools-parallelogram-roi-tool.ts:20</li>
+						<li>Defined in cornerstone-tools-hip-prosthesis-tool.ts:20</li>
 					</ul>
 				</aside>
 			</section>
@@ -1278,7 +1278,7 @@ cornerstoneTools.setToolActive(<span class="hljs-string">"RotatedEllipticalRoi"<
 				<div class="tsd-signature tsd-kind-icon">get<wbr>Logger<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;cornerstoneTools.import(&#x27;util/getLogger&#x27;)</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in cornerstone-tools-parallelogram-roi-tool.ts:14</li>
+						<li>Defined in cornerstone-tools-hip-prosthesis-tool.ts:14</li>
 					</ul>
 				</aside>
 			</section>
@@ -1288,7 +1288,7 @@ cornerstoneTools.setToolActive(<span class="hljs-string">"RotatedEllipticalRoi"<
 				<div class="tsd-signature tsd-kind-icon">get<wbr>New<wbr>Context<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;cornerstoneTools.import(&#x27;drawing/getNewContext&#x27;)</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in cornerstone-tools-parallelogram-roi-tool.ts:26</li>
+						<li>Defined in cornerstone-tools-hip-prosthesis-tool.ts:26</li>
 					</ul>
 				</aside>
 			</section>
@@ -1298,7 +1298,7 @@ cornerstoneTools.setToolActive(<span class="hljs-string">"RotatedEllipticalRoi"<
 				<div class="tsd-signature tsd-kind-icon">get<wbr>Pixel<wbr>Spacing<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;cornerstoneTools.import(&#x27;util/getPixelSpacing&#x27;)</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in cornerstone-tools-parallelogram-roi-tool.ts:25</li>
+						<li>Defined in cornerstone-tools-hip-prosthesis-tool.ts:25</li>
 					</ul>
 				</aside>
 			</section>
@@ -1328,7 +1328,7 @@ cornerstoneTools.setToolActive(<span class="hljs-string">"RotatedEllipticalRoi"<
 				<div class="tsd-signature tsd-kind-icon">handle<wbr>Activator<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;cornerstoneTools.import(&#x27;manipulators/handleActivator&#x27;)</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in cornerstone-tools-parallelogram-roi-tool.ts:16</li>
+						<li>Defined in cornerstone-tools-hip-prosthesis-tool.ts:16</li>
 					</ul>
 				</aside>
 			</section>
@@ -1338,7 +1338,7 @@ cornerstoneTools.setToolActive(<span class="hljs-string">"RotatedEllipticalRoi"<
 				<div class="tsd-signature tsd-kind-icon">logger<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;getLogger(&#x27;tools:annotation:RotatedEllipticalRoiTool&#x27;)</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in cornerstone-tools-parallelogram-roi-tool.ts:15</li>
+						<li>Defined in cornerstone-tools-hip-prosthesis-tool.ts:15</li>
 					</ul>
 				</aside>
 			</section>
@@ -1358,7 +1358,7 @@ cornerstoneTools.setToolActive(<span class="hljs-string">"RotatedEllipticalRoi"<
 				<div class="tsd-signature tsd-kind-icon">move<wbr>All<wbr>Handles<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;cornerstoneTools.import(&#x27;manipulators/moveAllHandles&#x27;)</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in cornerstone-tools-parallelogram-roi-tool.ts:23</li>
+						<li>Defined in cornerstone-tools-hip-prosthesis-tool.ts:23</li>
 					</ul>
 				</aside>
 			</section>
@@ -1368,7 +1368,7 @@ cornerstoneTools.setToolActive(<span class="hljs-string">"RotatedEllipticalRoi"<
 				<div class="tsd-signature tsd-kind-icon">move<wbr>New<wbr>Handle<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;cornerstoneTools.import(&#x27;manipulators/moveNewHandle&#x27;)</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in cornerstone-tools-parallelogram-roi-tool.ts:24</li>
+						<li>Defined in cornerstone-tools-hip-prosthesis-tool.ts:24</li>
 					</ul>
 				</aside>
 			</section>
@@ -1378,7 +1378,7 @@ cornerstoneTools.setToolActive(<span class="hljs-string">"RotatedEllipticalRoi"<
 				<div class="tsd-signature tsd-kind-icon">numbers<wbr>With<wbr>Commas<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;cornerstoneTools.import(&#x27;util/numbersWithCommas&#x27;)</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in cornerstone-tools-parallelogram-roi-tool.ts:31</li>
+						<li>Defined in cornerstone-tools-hip-prosthesis-tool.ts:31</li>
 					</ul>
 				</aside>
 			</section>
@@ -1408,7 +1408,7 @@ cornerstoneTools.setToolActive(<span class="hljs-string">"RotatedEllipticalRoi"<
 				<div class="tsd-signature tsd-kind-icon">set<wbr>Shadow<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;cornerstoneTools.import(&#x27;drawing/setShadow&#x27;)</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in cornerstone-tools-parallelogram-roi-tool.ts:28</li>
+						<li>Defined in cornerstone-tools-hip-prosthesis-tool.ts:28</li>
 					</ul>
 				</aside>
 			</section>
@@ -1429,7 +1429,7 @@ cornerstoneTools.setToolActive(<span class="hljs-string">"RotatedEllipticalRoi"<
 				<div class="tsd-signature tsd-kind-icon">throttle<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;cornerstoneTools.import(&#x27;util/throttle&#x27;)</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in cornerstone-tools-parallelogram-roi-tool.ts:12</li>
+						<li>Defined in cornerstone-tools-hip-prosthesis-tool.ts:12</li>
 					</ul>
 				</aside>
 			</section>
@@ -1456,7 +1456,7 @@ cornerstoneTools.setToolActive(<span class="hljs-string">"RotatedEllipticalRoi"<
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in cornerstone-tools-parallelogram-roi-tool.ts:604</li>
+								<li>Defined in cornerstone-tools-hip-prosthesis-tool.ts:604</li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1521,7 +1521,7 @@ cornerstoneTools.setToolActive(<span class="hljs-string">"RotatedEllipticalRoi"<
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in cornerstone-tools-parallelogram-roi-tool.ts:507</li>
+								<li>Defined in cornerstone-tools-hip-prosthesis-tool.ts:507</li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1599,7 +1599,7 @@ cornerstoneTools.setToolActive(<span class="hljs-string">"RotatedEllipticalRoi"<
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in cornerstone-tools-parallelogram-roi-tool.ts:478</li>
+								<li>Defined in cornerstone-tools-hip-prosthesis-tool.ts:478</li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1625,7 +1625,7 @@ cornerstoneTools.setToolActive(<span class="hljs-string">"RotatedEllipticalRoi"<
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in cornerstone-tools-parallelogram-roi-tool.ts:585</li>
+								<li>Defined in cornerstone-tools-hip-prosthesis-tool.ts:585</li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1652,7 +1652,7 @@ cornerstoneTools.setToolActive(<span class="hljs-string">"RotatedEllipticalRoi"<
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in cornerstone-tools-parallelogram-roi-tool.ts:714</li>
+								<li>Defined in cornerstone-tools-hip-prosthesis-tool.ts:714</li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1826,7 +1826,7 @@ cornerstoneTools.setToolActive(<span class="hljs-string">"RotatedEllipticalRoi"<
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in cornerstone-tools-parallelogram-roi-tool.ts:723</li>
+								<li>Defined in cornerstone-tools-hip-prosthesis-tool.ts:723</li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>

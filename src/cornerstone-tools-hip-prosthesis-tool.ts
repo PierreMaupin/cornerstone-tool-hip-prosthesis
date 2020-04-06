@@ -37,10 +37,10 @@ const drawLinkedTextBox = cornerstoneTools.import('drawing/drawLinkedTextBox')
 const numbersWithCommas = cornerstoneTools.import('util/numbersWithCommas')
 const calculateSUV = cornerstoneTools.import('util/calculateSUV')
 
-export default class ParallelogramRoiTool extends BaseAnnotationTool {
+export default class HipProsthesisTool extends BaseAnnotationTool {
   constructor(props = {}) {
     const defaultProps = {
-      name: 'ParallelogramRoi',
+      name: 'HipProsthesis',
       supportedInteractionTypes: ['Mouse', 'Touch'],
       configuration: {
         // showMinMax: false,

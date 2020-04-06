@@ -1,4 +1,4 @@
-# cornerstoneTools-ParallelogramRoiTool
+# cornerstoneTools-HipProsthesisTool
 
 
 An annotation tool for drawing a parallelogram roi. It is 3rd party library for [cornerstoneTools](https://github.com/cornerstonejs/cornerstoneTools).<br>
@@ -6,13 +6,13 @@ An annotation tool for drawing a parallelogram roi. It is 3rd party library for 
 ## Installation
 
 ```sh
-$ yarn add cornerstone-tools-parallelogram-roi-tool
+$ yarn add cornerstone-tools-hip-prosthesis-tool
 ```
 
 or
 
 ```sh
-$ npm i cornerstone-tools-parallelogram-roi-tool
+$ npm i cornerstone-tools-hip-prosthesis-tool
 ```
 
 This library has dependencies below

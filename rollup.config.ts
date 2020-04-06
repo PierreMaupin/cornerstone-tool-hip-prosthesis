@@ -7,14 +7,14 @@ import json from 'rollup-plugin-json'
 
 const pkg = require('./package.json')
 
-const libraryName = 'cornerstone-tools-parallelogram-roi-tool'
+const libraryName = 'cornerstone-tools-hip-prosthesis-tool'
 
 export default {
   input: `src/${libraryName}.ts`,
   output: [
     {
       file: pkg.main,
-      name: 'ParallelogramRoiTool',
+      name: 'HipProsthesisTool',
       format: 'umd',
       sourcemap: true,
     },
