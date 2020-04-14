@@ -1,7 +1,7 @@
 {
   "name": "cornerstone-tools-hip-prosthesis-tool",
-  "version": "0.0.0",
-  "description": "An annotation tool for drawing a parallelogram roi. It is 3rd party library for cornerstoneTools",
+  "version": "0.0.1",
+  "description": "An annotation tool for setting up a hip prosthesis. It is 3rd party library for cornerstoneTools",
   "keywords": [
     "cornerstone",
     "cornerstoneTools",
@@ -15,7 +15,7 @@
   "files": [
     "dist"
   ],
-  "author": "sisobus <sisobus1@gmail.com>",
+  "author": "PierreLeGuen <pierre@leguen.fr>",
   "repository": {
     "type": "git",
     "url": "https://github.com/PierreLeGuen/cornerstone-tool-parallelogram-roi"
