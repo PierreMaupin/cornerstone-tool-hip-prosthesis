@@ -13,6 +13,7 @@ import drawCircle from './drawing/drawCircle'
 import cornerstoneMath from 'cornerstone-math'
 import findPerpendicularPoint from './util/findPerpendicularPoint'
 import findMiddleLine from './util/findMiddleLine'
+import drawProsthesis from './drawing/drawProsthesis'
 
 const BaseAnnotationTool = cornerstoneTools.import('base/BaseAnnotationTool')
 const throttle = cornerstoneTools.import('util/throttle')
@@ -61,7 +62,8 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
   public addNewMeasurement(evt: any) {
     if (
       this.addedTools.includes('quadrilateral') &&
-      this.addedTools.includes('circle')
+      this.addedTools.includes('circle') &&
+      this.addedTools.includes('prosthesis')
     ) {
       return
     }
@@ -185,7 +187,6 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
         active: true,
         color: undefined,
         invalidated: true,
-        shortestDistance: 0,
         handles: {
           start: {
             x: eventData.currentPoints.image.x,
@@ -208,6 +209,29 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             drawnIndependently: true,
             allowedOutsideImage: true,
             hasBoundingBox: true,
+          },
+        },
+      }
+    } else if (!this.addedTools.includes('prosthesis')) {
+      this.addedTools.push('prosthesis')
+      return {
+        tool: 'prosthesis',
+        visible: true,
+        active: true,
+        color: undefined,
+        invalidated: true,
+        handles: {
+          tete: {
+            x: eventData.currentPoints.image.x,
+            y: eventData.currentPoints.image.y,
+            highlight: true,
+            active: false,
+          },
+          tige: {
+            x: eventData.currentPoints.image.x,
+            y: eventData.currentPoints.image.y,
+            highlight: true,
+            active: true,
           },
         },
       }
@@ -353,9 +377,9 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
       data && data.handles && data.handles.start && data.handles.end
 
     if (!validParameters) {
-      logger.warn(
-        `invalid parameters supplied to tool ${this.name}'s pointNearTool`,
-      )
+      // logger.warn(
+      //   `invalid parameters supplied to tool ${this.name}'s pointNearTool`,
+      // )
     }
 
     if (!validParameters || !data.visible) {
@@ -414,6 +438,8 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
     draw(context, (ctx: any) => {
       // If we have tool data for this element - iterate over each set and draw it
       for (const data of toolData.data) {
+        console.log(toolData.data)
+
         if (!data.visible) {
           continue
         }
@@ -501,9 +527,18 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             'pixel',
             data.handles.initialRotation,
           )
-
-          // Draw the prosthesis svg
         }
+        // Draw the prosthesis
+        if (data.tool === 'prosthesis') {
+          drawProsthesis(
+            context,
+            element,
+            'pixel',
+            { color },
+            { tete: { x: 0, y: 0 }, tige: { x: 0, y: 0 } },
+          )
+        }
+
         drawHandles(ctx, eventData, data.handles, handleOptions)
 
         // Update textbox stats
@@ -515,39 +550,41 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
           }
         }
 
-        // Default to textbox on right side of ROI
-        if (!data.handles.textBox.hasMoved) {
-          const defaultCoords = getROITextBoxCoords(
-            eventData.viewport,
-            data.handles,
+        if (data.handles.textBox != null) {
+          // Default to textbox on right side of ROI
+          if (!data.handles.textBox.hasMoved) {
+            const defaultCoords = getROITextBoxCoords(
+              eventData.viewport,
+              data.handles,
+            )
+
+            Object.assign(data.handles.textBox, defaultCoords)
+          }
+
+          const textBoxAnchorPoints = (handles: any) =>
+            _findTextBoxAnchorPoints(handles)
+          const textBoxContent = _createTextBoxContent(
+            ctx,
+            image.color,
+            data.cachedStats,
+            modality,
+            hasPixelSpacing,
+            this.configuration,
           )
 
-          Object.assign(data.handles.textBox, defaultCoords)
+          drawLinkedTextBox(
+            ctx,
+            element,
+            data.handles.textBox,
+            textBoxContent,
+            data.handles,
+            textBoxAnchorPoints,
+            color,
+            lineWidth,
+            10,
+            true,
+          )
         }
-
-        const textBoxAnchorPoints = (handles: any) =>
-          _findTextBoxAnchorPoints(handles)
-        const textBoxContent = _createTextBoxContent(
-          ctx,
-          image.color,
-          data.cachedStats,
-          modality,
-          hasPixelSpacing,
-          this.configuration,
-        )
-
-        drawLinkedTextBox(
-          ctx,
-          element,
-          data.handles.textBox,
-          textBoxContent,
-          data.handles,
-          textBoxAnchorPoints,
-          color,
-          lineWidth,
-          10,
-          true,
-        )
       }
     })
   }

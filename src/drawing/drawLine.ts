@@ -36,7 +36,6 @@ export default function(
   }
   const viewport = cornerstone.getViewport(element)
 
-  // Calculate the center of the image
   const { clientWidth: width, clientHeight: height } = element
   const { scale, translation } = viewport
   const rotation = viewport.rotation - initialRotation
