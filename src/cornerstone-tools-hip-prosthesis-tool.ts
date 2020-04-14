@@ -426,6 +426,7 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
         }
 
         setShadow(ctx, this.configuration)
+        // in case we have drawn the quadrilateral
         if (data.tool === 'quadrilateral') {
           // Draw
           drawParallelogram(
@@ -478,6 +479,7 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             'pixel',
           )
         }
+        // in case we have quadrilateral and circle
         if (
           this.addedTools.includes('quadrilateral') &&
           this.addedTools.includes('circle')
@@ -499,6 +501,8 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             'pixel',
             data.handles.initialRotation,
           )
+
+          // Draw the prosthesis svg
         }
         drawHandles(ctx, eventData, data.handles, handleOptions)
 
