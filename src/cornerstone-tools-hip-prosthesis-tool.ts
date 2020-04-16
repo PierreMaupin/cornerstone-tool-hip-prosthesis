@@ -98,8 +98,6 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             measurementData.handles.corner2.y = measurementData.handles.start.y
             measurementData.handles.corner2.position = 'start'
             measurementData.handles.corner2.isFirst = false
-          } else if (measurementData.tool === 'circle') {
-            // nothing for now...
           }
 
           this.updateCachedStats(image, element, measurementData)
@@ -221,17 +219,27 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
         color: undefined,
         invalidated: true,
         handles: {
-          tete: {
+          start: {
             x: eventData.currentPoints.image.x,
             y: eventData.currentPoints.image.y,
             highlight: true,
             active: false,
+            key: 'start',
           },
-          tige: {
+          end: {
             x: eventData.currentPoints.image.x,
             y: eventData.currentPoints.image.y,
             highlight: true,
             active: true,
+            key: 'end',
+          },
+          textBox: {
+            active: false,
+            hasMoved: false,
+            movesIndependently: false,
+            drawnIndependently: true,
+            allowedOutsideImage: true,
+            hasBoundingBox: true,
           },
         },
       }
@@ -377,9 +385,9 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
       data && data.handles && data.handles.start && data.handles.end
 
     if (!validParameters) {
-      // logger.warn(
-      //   `invalid parameters supplied to tool ${this.name}'s pointNearTool`,
-      // )
+      logger.warn(
+        `invalid parameters supplied to tool ${this.name}'s pointNearTool`,
+      )
     }
 
     if (!validParameters || !data.visible) {
@@ -438,8 +446,6 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
     draw(context, (ctx: any) => {
       // If we have tool data for this element - iterate over each set and draw it
       for (const data of toolData.data) {
-        console.log(toolData.data)
-
         if (!data.visible) {
           continue
         }
@@ -531,11 +537,12 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
         // Draw the prosthesis
         if (data.tool === 'prosthesis') {
           drawProsthesis(
-            context,
+            ctx,
             element,
+            data.handles.start,
+            data.handles.end,
             'pixel',
             { color },
-            { tete: { x: 0, y: 0 }, tige: { x: 0, y: 0 } },
           )
         }
 

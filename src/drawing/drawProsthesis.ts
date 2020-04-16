@@ -6,26 +6,26 @@ const path = cornerstoneTools.import('drawing/path')
 export default function(
   context: any,
   element: { clientWidth: any; clientHeight: any },
+  start: { x: any; y: any },
+  end: { x: any; y: any },
   coordSystem = 'pixel',
   options: any,
-
-  coords: { tete: { x: any; y: any }; tige: { x: any; y: any } },
 ) {
   if (coordSystem === 'pixel') {
-    coords.tete.x = cornerstone.pixelToCanvas(element, coords.tete.x)
-    coords.tete.y = cornerstone.pixelToCanvas(element, coords.tete.y)
-
-    coords.tige.x = cornerstone.pixelToCanvas(element, coords.tige.x)
-    coords.tige.y = cornerstone.pixelToCanvas(element, coords.tige.y)
+    start = cornerstone.pixelToCanvas(element, start)
+    end = cornerstone.pixelToCanvas(element, end)
   }
 
   const svg = new Image()
   svg.src = 'https://svgshare.com/i/K5V.svg'
 
-  const viewport = cornerstone.getViewport(element)
-  const { clientWidth: width, clientHeight: height } = element
-  const { scale, translation } = viewport
   path(context, options, (ctx: any) => {
-    ctx.drawImage(svg, 0, 0)
+    ctx.drawImage(
+      svg,
+      start.x,
+      start.y,
+      Math.abs(start.x - end.x),
+      Math.abs(start.y - end.y),
+    )
   })
 }
