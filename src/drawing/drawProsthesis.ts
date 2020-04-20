@@ -1,5 +1,6 @@
 import cornerstone from 'cornerstone-core'
 import cornerstoneTools from 'cornerstone-tools'
+import prosthesis from '../assets/prosthesis.svg'
 
 const path = cornerstoneTools.import('drawing/path')
 
@@ -16,12 +17,12 @@ export default function(
     end = cornerstone.pixelToCanvas(element, end)
   }
 
-  const svg = new Image()
-  svg.src = 'https://svgshare.com/i/K5V.svg'
+  const img = new Image()
+  img.src = prosthesis
 
   path(context, options, (ctx: any) => {
     ctx.drawImage(
-      svg,
+      img,
       start.x,
       start.y,
       Math.abs(start.x - end.x),
