@@ -40,6 +40,8 @@ export default function(
   const { scale, translation } = viewport
   const rotation = viewport.rotation - initialRotation
   path(context, options, (ctx: any) => {
+    //console.log("point1 est en position " + point1.x + " " + point1.y);
+    //console.log("point2 est en position " + point2.x + " " + point2.y);
     ctx.moveTo(point1.x, point1.y)
     ctx.lineTo(point2.x, point2.y)
   })

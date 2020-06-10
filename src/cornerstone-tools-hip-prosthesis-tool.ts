@@ -8,6 +8,9 @@ import drawParallelogram from './drawing/drawParallelogram'
 import moveCornerHandle from './manipulators/moveCornerHandle'
 import getQuadrilateralPoints from './util/getQuadrilateralPoints'
 import drawLine from './drawing/drawLine'
+
+//import prosthesis from './assets/prosthesis.svg'
+var prosthesis = 'test.svg'
 import findLine from './util/findMiddleLine'
 import drawCircle from './drawing/drawCircle'
 import cornerstoneMath from 'cornerstone-math'
@@ -543,6 +546,7 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             data.handles.end,
             'pixel',
             { color },
+            prosthesis,
           )
         }
 
@@ -644,6 +648,7 @@ function _createTextBoxContent(
   hasPixelSpacing: any,
   options: any = {},
 ) {
+  //console.log("testdeversion");
   const { area, mean, stdDev, min, max, meanStdDevSUV } = statistics
   const showMinMax = options.showMinMax || false
   const showHounsfieldUnits = options.showHounsfieldUnits !== false
@@ -656,21 +661,15 @@ function _createTextBoxContent(
     const hasStandardUptakeValues = meanStdDevSUV && meanStdDevSUV.mean !== 0
     const suffix = modality === 'CT' && showHounsfieldUnits ? ' HU' : ''
 
-    let meanString = `Mean: ${numbersWithCommas(mean.toFixed(2))}${suffix}`
-    const stdDevString = `Std Dev: ${numbersWithCommas(
-      stdDev.toFixed(2),
-    )}${suffix}`
+    let meanString = ``
+    const stdDevString = ``
 
     // If this image has SUV values to display, concatenate them to the text line
     if (hasStandardUptakeValues) {
       const SUVtext = ' SUV: '
 
-      const meanSuvString = `${SUVtext}${numbersWithCommas(
-        meanStdDevSUV.mean.toFixed(2),
-      )}`
-      const stdDevSuvString = `${SUVtext}${numbersWithCommas(
-        meanStdDevSUV.stdDev.toFixed(2),
-      )}`
+      const meanSuvString = ``
+      const stdDevSuvString = ``
 
       const targetStringLength = Math.floor(
         context.measureText(`${stdDevString}     `).width,
