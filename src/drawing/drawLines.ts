@@ -25,6 +25,7 @@ export default function(
   element: { clientWidth: any; clientHeight: any },
   point1: { x: any; y: any },
   point2: { x: any; y: any },
+  point3: { x: any; y: any },
 
   options: any,
   coordSystem = 'pixel',
@@ -33,18 +34,23 @@ export default function(
   if (coordSystem === 'pixel') {
     point1 = cornerstone.pixelToCanvas(element, point1)
     point2 = cornerstone.pixelToCanvas(element, point2)
+    point3 = cornerstone.pixelToCanvas(element, point3)
   }
   //console.log(element.clientWidth);
   const viewport = cornerstone.getViewport(element)
 
   const { clientWidth: width, clientHeight: height } = element
   const { scale, translation } = viewport
-  console.log(viewport)
+  //console.log(viewport);
   const rotation = viewport.rotation - initialRotation
   path(context, options, (ctx: any) => {
     //console.log("point1 est en position " + point1.x + " " + point1.y);
     //console.log("point2 est en position " + point2.x + " " + point2.y);
     ctx.moveTo(point1.x, point1.y)
     ctx.lineTo(point2.x, point2.y)
+    ctx.moveTo(point3.x, point3.y)
+    ctx.lineTo(point1.x, point1.y)
+    //ctx.moveTo(point1.x, point1.y)
+    //ctx.lineTo(point3.x, point3.y)
   })
 }
