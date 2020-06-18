@@ -29,6 +29,9 @@ export default function(context: any, data: any) {
 
   return {
     point1: { x: getX(0), y: 0 },
-    point2: { x: getX(context.canvas.height), y: context.canvas.height },
+    point2: {
+      x: getX(context.canvas.height * 100),
+      y: context.canvas.height * 100,
+    },
   }
 }

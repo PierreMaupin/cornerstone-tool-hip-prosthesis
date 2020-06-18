@@ -3,6 +3,8 @@ export default function(
   linePoint2: { x: any; y: any },
   point: { x: any; y: any },
 ) {
+  //console.log(linePoint1);
+  //console.log(linePoint2);
   const x1 = linePoint1.x
   const y1 = linePoint1.y
   const x2 = linePoint2.x
@@ -15,5 +17,6 @@ export default function(
   const u = ((x3 - x1) * px + (y3 - y1) * py) / dAB
   const x = x1 + u * px
   const y = y1 + u * py
+  console.log('On a un angle droit en ' + x + ' ' + y)
   return { x, y }
 }

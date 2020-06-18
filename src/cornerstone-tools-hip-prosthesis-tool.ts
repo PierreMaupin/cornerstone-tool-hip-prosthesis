@@ -8,11 +8,16 @@ import drawParallelogram from './drawing/drawParallelogram'
 import moveCornerHandle from './manipulators/moveCornerHandle'
 import getQuadrilateralPoints from './util/getQuadrilateralPoints'
 import drawLine from './drawing/drawLine'
+import drawLines from './drawing/drawLines'
+import drawTextBox from './drawing/drawTextBox'
+
+//import prosthesis from './assets/prosthesis.svg'
+var prosthesis = 'test.svg'
 import findLine from './util/findMiddleLine'
 import drawCircle from './drawing/drawCircle'
 import cornerstoneMath from 'cornerstone-math'
 import findPerpendicularPoint from './util/findPerpendicularPoint'
-import findMiddleLine from './util/findMiddleLine'
+import findAnglePoint from './util/findAnglePoint'
 import drawProsthesis from './drawing/drawProsthesis'
 
 const BaseAnnotationTool = cornerstoneTools.import('base/BaseAnnotationTool')
@@ -55,15 +60,34 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
     this.addedTools = []
     this.middleLine = null
     this.perpPoint = null
+    this.perpPoint1 = null
+    this.perpPoint2 = null
+    this.distance = null
+    this.radius = null
+    this.scale = null
+    this.angleCervico = null
+    this.setProsthesis = false
 
     this.throttledUpdateCachedStats = throttle(this.updateCachedStats, 110)
   }
 
+  public reset() {
+    this.addedTools = []
+    this.middleLine = null
+    this.perpPoint = null
+    this.perpPoint1 = null
+    this.perpPoint2 = null
+    this.distance = null
+    this.setProsthesis = false
+  }
+
   public addNewMeasurement(evt: any) {
     if (
-      this.addedTools.includes('quadrilateral') &&
+      this.addedTools.includes('bille') &&
       this.addedTools.includes('circle') &&
-      this.addedTools.includes('prosthesis')
+      this.addedTools.includes('quadrilateral') &&
+      this.addedTools.includes('prosthesis') &&
+      this.addedTools.includes('tooltest')
     ) {
       return
     }
@@ -122,7 +146,74 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
 
       return
     }
-    if (!this.addedTools.includes('quadrilateral')) {
+    if (!this.addedTools.includes('bille')) {
+      this.addedTools.push('bille')
+      return {
+        tool: 'bille',
+        visible: true,
+        active: true,
+        color: undefined,
+        invalidated: true,
+        handles: {
+          start: {
+            x: eventData.currentPoints.image.x,
+            y: eventData.currentPoints.image.y,
+            highlight: true,
+            active: false,
+            key: 'start',
+          },
+          end: {
+            x: eventData.currentPoints.image.x,
+            y: eventData.currentPoints.image.y,
+            highlight: true,
+            active: true,
+            key: 'end',
+          },
+          textBox: {
+            active: false,
+            hasMoved: false,
+            movesIndependently: false,
+            drawnIndependently: true,
+            allowedOutsideImage: true,
+            hasBoundingBox: true,
+          },
+        },
+      }
+    }
+    if (!this.addedTools.includes('circle')) {
+      this.addedTools.push('circle')
+      return {
+        tool: 'circle',
+        visible: true,
+        active: true,
+        color: undefined,
+        invalidated: true,
+        handles: {
+          start: {
+            x: eventData.currentPoints.image.x,
+            y: eventData.currentPoints.image.y,
+            highlight: true,
+            active: false,
+            key: 'start',
+          },
+          end: {
+            x: eventData.currentPoints.image.x,
+            y: eventData.currentPoints.image.y,
+            highlight: true,
+            active: true,
+            key: 'end',
+          },
+          textBox: {
+            active: false,
+            hasMoved: false,
+            movesIndependently: false,
+            drawnIndependently: true,
+            allowedOutsideImage: true,
+            hasBoundingBox: true,
+          },
+        },
+      }
+    } else if (!this.addedTools.includes('quadrilateral')) {
       this.addedTools.push('quadrilateral')
       return {
         tool: 'quadrilateral',
@@ -177,10 +268,10 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
           },
         },
       }
-    } else if (!this.addedTools.includes('circle')) {
-      this.addedTools.push('circle')
+    } else if (!this.addedTools.includes('prosthesis')) {
+      this.addedTools.push('prosthesis')
       return {
-        tool: 'circle',
+        tool: 'prosthesis',
         visible: true,
         active: true,
         color: undefined,
@@ -210,10 +301,10 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
           },
         },
       }
-    } else if (!this.addedTools.includes('prosthesis')) {
-      this.addedTools.push('prosthesis')
+    } else if (!this.addedTools.includes('tooltest')) {
+      this.addedTools.push('tooltest')
       return {
-        tool: 'prosthesis',
+        tool: 'tooltest',
         visible: true,
         active: true,
         color: undefined,
@@ -234,9 +325,9 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             key: 'end',
           },
           textBox: {
-            active: false,
+            active: true,
             hasMoved: false,
-            movesIndependently: false,
+            movesIndependently: true,
             drawnIndependently: true,
             allowedOutsideImage: true,
             hasBoundingBox: true,
@@ -458,8 +549,58 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
         }
 
         setShadow(ctx, this.configuration)
-        // in case we have drawn the quadrilateral
-        if (data.tool === 'quadrilateral') {
+        // first we set the scale
+        if (data.tool === 'bille') {
+          const getDistance = cornerstoneMath.point.distance
+
+          const startCanvas = cornerstone.pixelToCanvas(
+            element,
+            data.handles.start,
+          )
+
+          const endCanvas = cornerstone.pixelToCanvas(element, data.handles.end)
+
+          // Calculating the radius where startCanvas is the center of the circle to be drawn
+          const radius = getDistance(startCanvas, endCanvas)
+          this.scale = radius
+          // Draw Circle
+          drawCircle(
+            context,
+            element,
+            data.handles.start,
+            radius,
+            {
+              color,
+            },
+            'pixel',
+          )
+        }
+        // then we draw the head
+        if (data.tool === 'circle') {
+          const getDistance = cornerstoneMath.point.distance
+
+          const startCanvas = cornerstone.pixelToCanvas(
+            element,
+            data.handles.start,
+          )
+
+          const endCanvas = cornerstone.pixelToCanvas(element, data.handles.end)
+
+          // Calculating the radius where startCanvas is the center of the circle to be drawn
+          const radius = getDistance(startCanvas, endCanvas)
+          this.radius = radius
+          // Draw Circle
+          drawCircle(
+            context,
+            element,
+            data.handles.start,
+            radius,
+            {
+              color,
+            },
+            'pixel',
+          )
+        } else if (data.tool === 'quadrilateral') {
           // Draw
           drawParallelogram(
             ctx,
@@ -486,35 +627,61 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             'pixel',
             data.handles.initialRotation,
           )
-        } else if (data.tool === 'circle') {
-          const getDistance = cornerstoneMath.point.distance
-
-          const startCanvas = cornerstone.pixelToCanvas(
-            element,
+          this.setProsthesis = true
+        } else if (data.tool === 'tooltest') {
+          this.perpPoint1 = findPerpendicularPoint(
+            this.middleLine.point1,
+            this.middleLine.point2,
             data.handles.start,
           )
-
-          const endCanvas = cornerstone.pixelToCanvas(element, data.handles.end)
-
-          // Calculating the radius where startCanvas is the center of the circle to be drawn
-          const radius = getDistance(startCanvas, endCanvas)
-
-          // Draw Circle
-          drawCircle(
-            context,
+          this.perpPoint2 = findPerpendicularPoint(
+            this.middleLine.point1,
+            this.middleLine.point2,
+            data.handles.end,
+          )
+          //this.distance = Math.sqrt(Math.pow(data.handles.start.x-data.handles.end.x,2) + Math.pow(data.handles.start.y-data.handles.end.y,2))
+          this.distance = Math.sqrt(
+            Math.pow(this.perpPoint2.x - this.perpPoint1.x, 2) +
+              Math.pow(this.perpPoint2.y - this.perpPoint1.y, 2),
+          )
+          drawLine(
+            ctx,
             element,
             data.handles.start,
-            radius,
+            this.perpPoint1,
             {
               color,
             },
             'pixel',
+            data.handles.initialRotation,
           )
+          drawLine(
+            ctx,
+            element,
+            data.handles.end,
+            this.perpPoint2,
+            {
+              color,
+            },
+            'pixel',
+            data.handles.initialRotation,
+          )
+          const dist = data.handles.end.y - data.handles.start.y
+          const text = dist.toString()
+          /*drawTextBox(
+            context,
+            text,
+            data.handles.end.x,
+            data.handles.end.y,
+            color,
+            options
+          );*/
         }
+
         // in case we have quadrilateral and circle
         if (
-          this.addedTools.includes('quadrilateral') &&
-          this.addedTools.includes('circle')
+          //this.addedTools.includes('quadrilateral')
+          this.setProsthesis == true
         ) {
           const toolsData = cornerstoneTools.getToolState(element, this.name)
           this.perpPoint = findPerpendicularPoint(
@@ -522,11 +689,27 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             this.middleLine.point2,
             toolsData.data[1].handles.start,
           )
-          drawLine(
+
+          this.anglePoint = findAnglePoint(
+            this.middleLine.point1,
+            this.middleLine.point2,
+            toolsData.data[1].handles.start,
+          )
+          console.log(
+            'le centre est en ' +
+              toolsData.data[1].handles.start.x +
+              ' ' +
+              toolsData.data[1].handles.start.y,
+          )
+          console.log(this.anglePoint)
+          console.log(ctx)
+          console.log('distance ' + this.distance)
+          drawLines(
             ctx,
             element,
             toolsData.data[1].handles.start,
             this.perpPoint,
+            this.anglePoint[0],
             {
               color,
             },
@@ -534,8 +717,13 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             data.handles.initialRotation,
           )
         }
-        // Draw the prosthesis
+
         if (data.tool === 'prosthesis') {
+          //console.log(this.scale);
+          const coef =
+            (this.middleLine.point2.y - this.middleLine.point1.y) /
+            (this.middleLine.point2.x - this.middleLine.point1.x)
+          console.log(coef)
           drawProsthesis(
             ctx,
             element,
@@ -543,6 +731,9 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             data.handles.end,
             'pixel',
             { color },
+            prosthesis,
+            this.scale,
+            coef,
           )
         }
 
@@ -644,6 +835,7 @@ function _createTextBoxContent(
   hasPixelSpacing: any,
   options: any = {},
 ) {
+  //console.log("testdeversion");
   const { area, mean, stdDev, min, max, meanStdDevSUV } = statistics
   const showMinMax = options.showMinMax || false
   const showHounsfieldUnits = options.showHounsfieldUnits !== false
@@ -656,21 +848,15 @@ function _createTextBoxContent(
     const hasStandardUptakeValues = meanStdDevSUV && meanStdDevSUV.mean !== 0
     const suffix = modality === 'CT' && showHounsfieldUnits ? ' HU' : ''
 
-    let meanString = `Mean: ${numbersWithCommas(mean.toFixed(2))}${suffix}`
-    const stdDevString = `Std Dev: ${numbersWithCommas(
-      stdDev.toFixed(2),
-    )}${suffix}`
+    let meanString = ``
+    const stdDevString = ``
 
     // If this image has SUV values to display, concatenate them to the text line
     if (hasStandardUptakeValues) {
       const SUVtext = ' SUV: '
 
-      const meanSuvString = `${SUVtext}${numbersWithCommas(
-        meanStdDevSUV.mean.toFixed(2),
-      )}`
-      const stdDevSuvString = `${SUVtext}${numbersWithCommas(
-        meanStdDevSUV.stdDev.toFixed(2),
-      )}`
+      const meanSuvString = ``
+      const stdDevSuvString = ``
 
       const targetStringLength = Math.floor(
         context.measureText(`${stdDevString}     `).width,
