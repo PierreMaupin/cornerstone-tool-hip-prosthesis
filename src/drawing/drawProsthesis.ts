@@ -1,5 +1,7 @@
 import cornerstone from 'cornerstone-core'
 import cornerstoneTools from 'cornerstone-tools'
+
+import findAnglePoint from '../util/findAnglePoint'
 import prosthesis from '../assets/prosthesis.svg'
 
 const path = cornerstoneTools.import('drawing/path')
@@ -13,7 +15,7 @@ export default function(
   options: any,
   prothese: any,
   radius: any,
-  angle: any,
+  middleline: any,
 ) {
   if (coordSystem === 'pixel') {
     start = cornerstone.pixelToCanvas(element, start)
@@ -46,22 +48,55 @@ export default function(
     console.log('handle en  ' + start.x + ' ' + start.y)
     console.log('centrepoint en  ' + centerPoint.x + ' ' + centerPoint.y)
     //ctx.translate(centerPoint.x, centerPoint.y)
-    //ctx.rotate((Math.PI / 180) * angle);
+    ctx.translate(start.x + img.width, start.y + img.height)
+
+    //const p1 = { x: start.x, y: start.y }
+    //const p2 = { x: start.x, y: start.y+10 }
+    //const p3 = { x: start.x+10, y: (Math.abs((start.x+10)*(-coef))+start.y+10) }
+
+    const p1 = middleline.point1
+    const p2 = middleline.point2
+    const p3 = { x: middleline.point2.x, y: middleline.point1.y }
+    console.log(middleline)
+    var angle = 0
+    if (middleline.point1.x >= middleline.point2.x) {
+      angle = findAngle(p1, p2, p3)
+    } else {
+      angle = -findAngle(p1, p2, p3)
+    }
+    //const angle = 0
+    console.log(angle * (180 / Math.PI))
+    ctx.rotate((Math.PI / 180) * 35) //offset
+    ctx.rotate(angle)
+    ctx.translate(-(start.x + img.width), -(start.y + img.height))
     console.log('angle : ' + angle)
+    console.log('radius : ' + radius)
     ctx.drawImage(
       img,
       start.x,
       start.y,
-      //Math.abs(img.width * (scale) * 0.05 * (start.x - end.x)),
-      //Math.abs(img.height * (scale) * 0.05 * (start.x - end.x)),
+      //0,
+      //0,
+      //Math.abs(img.width * (scale) * 2),
+      //Math.abs(img.height * (scale) * 2),
       Math.abs(img.width * scale * radius * 0.2),
       Math.abs(img.height * scale * radius * 0.2),
     )
-    //ctx.rotate(360 - (Math.PI / 180) * angle);
-    //ctx.translate(0, 0)
+    //ctx.rotate(360 - (Math.PI / 180) * 35);
     ctx.restore()
     /*ctx.translate(start.x, start.y)
     ctx.rotate(end.y/10)
     ctx.translate(-start.x, -start.y)*/
   })
+}
+
+function findAngle(
+  p1: { x: any; y: any },
+  p2: { x: any; y: any },
+  p3: { x: any; y: any },
+) {
+  var b = Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2),
+    a = Math.pow(p2.x - p3.x, 2) + Math.pow(p2.y - p3.y, 2),
+    c = Math.pow(p3.x - p1.x, 2) + Math.pow(p3.y - p1.y, 2)
+  return Math.acos((a + b - c) / Math.sqrt(4 * a * b))
 }

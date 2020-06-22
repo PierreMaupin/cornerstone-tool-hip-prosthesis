@@ -75,7 +75,11 @@
       cornerstoneTools.setToolActive("Pan", { mouseButtonMask: 4 });
       cornerstoneTools.setToolActive("Zoom", { mouseButtonMask: 2 });
 
-      cornerstoneTools.addTool(HipProsthesisTool);
+      const configuration = {
+        sideFace: true,
+        sideProfil : false,
+      }
+      cornerstoneTools.addTool(HipProsthesisTool, { configuration });
       cornerstoneTools.setToolActive("HipProsthesis", { mouseButtonMask: 1 });
     });
   </script>

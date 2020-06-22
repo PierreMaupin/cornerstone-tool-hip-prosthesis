@@ -49,8 +49,8 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
       name: 'HipProsthesis',
       supportedInteractionTypes: ['Mouse', 'Touch'],
       configuration: {
-        // showMinMax: false,
-        // showHounsfieldUnits: true,
+        sideFace: false,
+        sideProfil: false,
       },
       svgCursor: rotatedEllipticalRoiCursor,
     }
@@ -67,7 +67,9 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
     this.scale = null
     this.angleCervico = null
     this.setProsthesis = false
-
+    console.log(this._configuration.sideFace)
+    this.sideFace = this._configuration.sideFace
+    this.sideProfil = this._configuration.sideProfil
     this.throttledUpdateCachedStats = throttle(this.updateCachedStats, 110)
   }
 
@@ -87,7 +89,7 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
       this.addedTools.includes('circle') &&
       this.addedTools.includes('quadrilateral') &&
       this.addedTools.includes('prosthesis') &&
-      this.addedTools.includes('tooltest')
+      (this.addedTools.includes('tooltest') || this.sideFace == false)
     ) {
       return
     }
@@ -301,7 +303,7 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
           },
         },
       }
-    } else if (!this.addedTools.includes('tooltest')) {
+    } else if (!this.addedTools.includes('tooltest') && this.sideFace == true) {
       this.addedTools.push('tooltest')
       return {
         tool: 'tooltest',
@@ -628,7 +630,7 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             data.handles.initialRotation,
           )
           this.setProsthesis = true
-        } else if (data.tool === 'tooltest') {
+        } else if (data.tool === 'tooltest' && this.sideFace == true) {
           this.perpPoint1 = findPerpendicularPoint(
             this.middleLine.point1,
             this.middleLine.point2,
@@ -733,7 +735,7 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             { color },
             prosthesis,
             this.scale,
-            coef,
+            this.middleLine,
           )
         }
 

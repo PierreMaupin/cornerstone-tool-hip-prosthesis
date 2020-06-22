@@ -131,6 +131,6 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
-    "cornerstone-tools-hip-prosthesis-toolv2": "^0.0.2"
+    "cornerstone-tools-hip-prosthesis-toolv2": "^0.1.1"
   }
 }
