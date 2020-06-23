@@ -12,7 +12,6 @@ import drawLines from './drawing/drawLines'
 import drawTextBox from './drawing/drawTextBox'
 
 //import prosthesis from './assets/prosthesis.svg'
-var prosthesis = 'test.svg'
 import findLine from './util/findMiddleLine'
 import drawCircle from './drawing/drawCircle'
 import cornerstoneMath from 'cornerstone-math'
@@ -51,6 +50,7 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
       configuration: {
         sideFace: false,
         sideProfil: false,
+        path: '',
       },
       svgCursor: rotatedEllipticalRoiCursor,
     }
@@ -59,6 +59,7 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
 
     this.addedTools = []
     this.middleLine = null
+    this.headCenter = null
     this.perpPoint = null
     this.perpPoint1 = null
     this.perpPoint2 = null
@@ -67,6 +68,7 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
     this.scale = null
     this.angleCervico = null
     this.setProsthesis = false
+    this.prosthesis = this._configuration.path
     console.log(this._configuration.sideFace)
     this.sideFace = this._configuration.sideFace
     this.sideProfil = this._configuration.sideProfil
@@ -88,8 +90,9 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
       this.addedTools.includes('bille') &&
       this.addedTools.includes('circle') &&
       this.addedTools.includes('quadrilateral') &&
-      this.addedTools.includes('prosthesis') &&
-      (this.addedTools.includes('tooltest') || this.sideFace == false)
+      //this.addedTools.includes('prosthesis') &&
+      (this.addedTools.includes('hauteurTemoin') || this.sideFace == false) &&
+      (this.addedTools.includes('hauteurJambe') || this.sideFace == false)
     ) {
       return
     }
@@ -270,7 +273,7 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
           },
         },
       }
-    } else if (!this.addedTools.includes('prosthesis')) {
+    } /*else if (!this.addedTools.includes('prosthesis')) {
       this.addedTools.push('prosthesis')
       return {
         tool: 'prosthesis',
@@ -303,10 +306,49 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
           },
         },
       }
-    } else if (!this.addedTools.includes('tooltest') && this.sideFace == true) {
-      this.addedTools.push('tooltest')
+    }*/ else if (
+      !this.addedTools.includes('hauteurTemoin') &&
+      this.sideFace == true
+    ) {
+      this.addedTools.push('hauteurTemoin')
       return {
-        tool: 'tooltest',
+        tool: 'hauteurTemoin',
+        visible: true,
+        active: true,
+        color: undefined,
+        invalidated: true,
+        handles: {
+          start: {
+            x: eventData.currentPoints.image.x,
+            y: eventData.currentPoints.image.y,
+            highlight: true,
+            active: false,
+            key: 'start',
+          },
+          end: {
+            x: eventData.currentPoints.image.x,
+            y: eventData.currentPoints.image.y,
+            highlight: true,
+            active: true,
+            key: 'end',
+          },
+          textBox: {
+            active: true,
+            hasMoved: false,
+            movesIndependently: true,
+            drawnIndependently: true,
+            allowedOutsideImage: true,
+            hasBoundingBox: true,
+          },
+        },
+      }
+    } else if (
+      !this.addedTools.includes('hauteurJambe') &&
+      this.sideFace == true
+    ) {
+      this.addedTools.push('hauteurJambe')
+      return {
+        tool: 'hauteurJambe',
         visible: true,
         active: true,
         color: undefined,
@@ -630,7 +672,19 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             data.handles.initialRotation,
           )
           this.setProsthesis = true
-        } else if (data.tool === 'tooltest' && this.sideFace == true) {
+        } else if (data.tool === 'hauteurTemoin' && this.sideFace == true) {
+          drawLine(
+            ctx,
+            element,
+            data.handles.start,
+            data.handles.end,
+            {
+              color,
+            },
+            'pixel',
+            data.handles.initialRotation,
+          )
+        } else if (data.tool === 'hauteurJambe' && this.sideFace == true) {
           this.perpPoint1 = findPerpendicularPoint(
             this.middleLine.point1,
             this.middleLine.point2,
@@ -718,26 +772,40 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             'pixel',
             data.handles.initialRotation,
           )
-        }
-
-        if (data.tool === 'prosthesis') {
-          //console.log(this.scale);
-          const coef =
-            (this.middleLine.point2.y - this.middleLine.point1.y) /
-            (this.middleLine.point2.x - this.middleLine.point1.x)
-          console.log(coef)
+          const centerHead = {
+            x: toolsData.data[1].handles.start.x,
+            y: toolsData.data[1].handles.start.y,
+          }
           drawProsthesis(
             ctx,
             element,
-            data.handles.start,
-            data.handles.end,
+            //data.handles.start,
+            //data.handles.end,
             'pixel',
             { color },
-            prosthesis,
+            this.prosthesis,
             this.scale,
             this.middleLine,
+            centerHead,
           )
         }
+
+        /*if (data.tool === 'prosthesis') {
+          const toolsData = cornerstoneTools.getToolState(element, this.name)
+          const centerHead = { x: toolsData.data[1].handles.start.x, y: toolsData.data[1].handles.start.y }
+          drawProsthesis(
+            ctx,
+            element,
+            //data.handles.start,
+            //data.handles.end,
+            'pixel',
+            { color },
+            this.prosthesis,
+            this.scale,
+            this.middleLine,
+            centerHead,
+          )
+        }*/
 
         drawHandles(ctx, eventData, data.handles, handleOptions)
 

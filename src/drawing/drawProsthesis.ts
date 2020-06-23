@@ -9,17 +9,19 @@ const path = cornerstoneTools.import('drawing/path')
 export default function(
   context: any,
   element: { clientWidth: any; clientHeight: any },
-  start: { x: any; y: any },
-  end: { x: any; y: any },
+  //start: { x: any; y: any },
+  //end: { x: any; y: any },
   coordSystem = 'pixel',
   options: any,
   prothese: any,
   radius: any,
   middleline: any,
+  centerHead: any,
 ) {
   if (coordSystem === 'pixel') {
-    start = cornerstone.pixelToCanvas(element, start)
-    end = cornerstone.pixelToCanvas(element, end)
+    //start = cornerstone.pixelToCanvas(element, start)
+    //end = cornerstone.pixelToCanvas(element, end)
+    centerHead = cornerstone.pixelToCanvas(element, centerHead)
   }
 
   const viewport = cornerstone.getViewport(element)
@@ -42,13 +44,13 @@ export default function(
     ctx.rotate((Math.PI / 180) * 35)
     ctx.translate(-start.x, -start.y)*/
     ctx.save()
-    const midx = start.x + img.width / 2
-    const midy = start.y + img.height / 2
-    console.log('millieu de la pièce en ' + midx + ' ' + midy)
-    console.log('handle en  ' + start.x + ' ' + start.y)
     console.log('centrepoint en  ' + centerPoint.x + ' ' + centerPoint.y)
     //ctx.translate(centerPoint.x, centerPoint.y)
-    ctx.translate(start.x + img.width, start.y + img.height)
+
+    //ctx.translate(start.x + img.width, start.y + img.height)
+    //ctx.translate(start.x + 44.236 * scale * radius * 0.2, start.y + 16.131 * scale * radius * 0.2)
+    ctx.translate(centerHead.x, centerHead.y)
+    //ctx.translate(headx, heady)
 
     //const p1 = { x: start.x, y: start.y }
     //const p2 = { x: start.x, y: start.y+10 }
@@ -66,19 +68,26 @@ export default function(
     }
     //const angle = 0
     console.log(angle * (180 / Math.PI))
-    ctx.rotate((Math.PI / 180) * 35) //offset
+    //ctx.rotate((Math.PI / 180) * 35) //offset
     ctx.rotate(angle)
-    ctx.translate(-(start.x + img.width), -(start.y + img.height))
+
+    //ctx.translate(-(start.x + img.width), -(start.y + img.height))
+    //ctx.translate(-(start.x + 44.236 * scale * radius * 0.2), -(start.y + 16.131* scale * radius * 0.2))
+    ctx.translate(-centerHead.x, -centerHead.y)
+    //ctx.translate(-(headx), -(heady))
     console.log('angle : ' + angle)
     console.log('radius : ' + radius)
+    console.log(centerHead)
     ctx.drawImage(
       img,
-      start.x,
-      start.y,
+      centerHead.x - 44.236 * scale * radius * 0.2,
+      centerHead.y - 16.131 * scale * radius * 0.2,
+      //headx,
+      //heady,
       //0,
       //0,
-      //Math.abs(img.width * (scale) * 2),
-      //Math.abs(img.height * (scale) * 2),
+      //Math.abs(img.width ),
+      //Math.abs(img.height ),
       Math.abs(img.width * scale * radius * 0.2),
       Math.abs(img.height * scale * radius * 0.2),
     )
