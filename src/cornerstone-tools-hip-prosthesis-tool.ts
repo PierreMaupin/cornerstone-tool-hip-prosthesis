@@ -64,6 +64,7 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
     this.perpPoint1 = null
     this.perpPoint2 = null
     this.distance = null
+    this.hauteur = null
     this.radius = null
     this.scale = null
     this.angleCervico = null
@@ -685,26 +686,47 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             data.handles.initialRotation,
           )
         } else if (data.tool === 'hauteurJambe' && this.sideFace == true) {
-          this.perpPoint1 = findPerpendicularPoint(
-            this.middleLine.point1,
-            this.middleLine.point2,
-            data.handles.start,
-          )
-          this.perpPoint2 = findPerpendicularPoint(
-            this.middleLine.point1,
-            this.middleLine.point2,
-            data.handles.end,
-          )
+          const toolsData = cornerstoneTools.getToolState(element, this.name)
+
+          const start = {
+            x: toolsData.data[3].handles.start.x,
+            y: toolsData.data[3].handles.start.y,
+          }
+          const end = {
+            x: toolsData.data[3].handles.end.x,
+            y: toolsData.data[3].handles.end.y,
+          }
+          //console.log(toolsData.data[3]);
+          const coef: number = (start.y - end.y) / (start.x - end.x)
           //this.distance = Math.sqrt(Math.pow(data.handles.start.x-data.handles.end.x,2) + Math.pow(data.handles.start.y-data.handles.end.y,2))
-          this.distance = Math.sqrt(
+          /*this.distance = Math.sqrt(
             Math.pow(this.perpPoint2.x - this.perpPoint1.x, 2) +
               Math.pow(this.perpPoint2.y - this.perpPoint1.y, 2),
+          )*/
+
+          const p1 = {
+            x: data.handles.start.x + 1000,
+            y: data.handles.start.y + 1000 * coef,
+          }
+          const p2 = {
+            x: data.handles.end.x - 1000,
+            y: data.handles.end.y - 1000 * coef,
+          }
+          this.perpPoint1 = findPerpendicularPoint(
+            data.handles.end,
+            p2,
+            data.handles.start,
           )
+          this.hauteur = Math.sqrt(
+            Math.pow(data.handles.start.x - this.perpPoint1.x, 2) +
+              Math.pow(data.handles.start.y - this.perpPoint1.y, 2),
+          )
+          console.log(this.hauteur)
           drawLine(
             ctx,
             element,
             data.handles.start,
-            this.perpPoint1,
+            p1,
             {
               color,
             },
@@ -715,7 +737,7 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             ctx,
             element,
             data.handles.end,
-            this.perpPoint2,
+            p2,
             {
               color,
             },
