@@ -586,8 +586,11 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
           continue
         }
         // Configure
-        const color = cornerstoneTools.toolColors.getColorIfActive(data)
-        const handleOptions = {
+        cornerstoneTools.toolColors.setToolColor('blue')
+        var color = cornerstoneTools.toolColors.getColorIfActive(data)
+        console.log(color)
+        console.log(cornerstoneTools.toolColors)
+        var handleOptions = {
           color,
           handleRadius,
           drawHandlesIfActive: drawHandlesOnHover,
@@ -596,8 +599,16 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
         setShadow(ctx, this.configuration)
         // first we set the scale
         if (data.tool === 'bille') {
+          //tool color red
+          cornerstoneTools.toolColors.setToolColor('rgb(181, 0, 0)')
+          cornerstoneTools.toolColors.setActiveColor('rgb(255, 0, 0)')
+          color = cornerstoneTools.toolColors.getColorIfActive(data)
+          handleOptions = {
+            color,
+            handleRadius,
+            drawHandlesIfActive: drawHandlesOnHover,
+          }
           const getDistance = cornerstoneMath.point.distance
-
           const startCanvas = cornerstone.pixelToCanvas(
             element,
             data.handles.start,
@@ -622,8 +633,17 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
         }
         // then we draw the head
         if (data.tool === 'circle') {
-          const getDistance = cornerstoneMath.point.distance
+          //tool color white
+          cornerstoneTools.toolColors.setToolColor('rgb(200, 200, 200)')
+          cornerstoneTools.toolColors.setActiveColor('rgb(255, 255, 255)')
+          color = cornerstoneTools.toolColors.getColorIfActive(data)
+          handleOptions = {
+            color,
+            handleRadius,
+            drawHandlesIfActive: drawHandlesOnHover,
+          }
 
+          const getDistance = cornerstoneMath.point.distance
           const startCanvas = cornerstone.pixelToCanvas(
             element,
             data.handles.start,
@@ -646,6 +666,15 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             'pixel',
           )
         } else if (data.tool === 'quadrilateral') {
+          //tool color white
+          cornerstoneTools.toolColors.setToolColor('rgb(200, 200, 200)')
+          cornerstoneTools.toolColors.setActiveColor('rgb(255, 255, 255)')
+          color = cornerstoneTools.toolColors.getColorIfActive(data)
+          handleOptions = {
+            color,
+            handleRadius,
+            drawHandlesIfActive: drawHandlesOnHover,
+          }
           // Draw
           drawParallelogram(
             ctx,
@@ -674,6 +703,15 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
           )
           this.setProsthesis = true
         } else if (data.tool === 'hauteurTemoin' && this.sideFace == true) {
+          //tool color orange
+          cornerstoneTools.toolColors.setToolColor('rgb(220, 155, 41)')
+          cornerstoneTools.toolColors.setActiveColor('rgb(220, 205, 41)')
+          color = cornerstoneTools.toolColors.getColorIfActive(data)
+          handleOptions = {
+            color,
+            handleRadius,
+            drawHandlesIfActive: drawHandlesOnHover,
+          }
           drawLine(
             ctx,
             element,
@@ -686,6 +724,14 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             data.handles.initialRotation,
           )
         } else if (data.tool === 'hauteurJambe' && this.sideFace == true) {
+          //tool color orange
+          cornerstoneTools.toolColors.setToolColor('rgb(220, 155, 41)')
+          color = cornerstoneTools.toolColors.getColorIfActive(data)
+          handleOptions = {
+            color,
+            handleRadius,
+            drawHandlesIfActive: drawHandlesOnHover,
+          }
           const toolsData = cornerstoneTools.getToolState(element, this.name)
 
           const start = {
@@ -757,10 +803,18 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
         }
 
         // in case we have quadrilateral and circle
-        if (
+        else if (
           //this.addedTools.includes('quadrilateral')
           this.setProsthesis == true
         ) {
+          //tool color blue
+          cornerstoneTools.toolColors.setToolColor('rgb(200, 200, 200)')
+          color = cornerstoneTools.toolColors.getColorIfActive(data)
+          /*handleOptions = {
+            color,
+            handleRadius,
+            drawHandlesIfActive: drawHandlesOnHover,
+          }*/
           const toolsData = cornerstoneTools.getToolState(element, this.name)
           this.perpPoint = findPerpendicularPoint(
             this.middleLine.point1,

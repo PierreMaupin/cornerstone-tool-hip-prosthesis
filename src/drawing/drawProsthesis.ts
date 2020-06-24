@@ -80,16 +80,16 @@ export default function(
     console.log(centerHead)
     ctx.drawImage(
       img,
-      centerHead.x - 44.236 * scale * radius * 0.2,
-      centerHead.y - 16.131 * scale * radius * 0.2,
+      centerHead.x - 44.236 * radius * 0.2,
+      centerHead.y - 16.131 * radius * 0.2,
       //headx,
       //heady,
       //0,
       //0,
       //Math.abs(img.width ),
       //Math.abs(img.height ),
-      Math.abs(img.width * scale * radius * 0.2),
-      Math.abs(img.height * scale * radius * 0.2),
+      Math.abs(img.width * radius * 0.2),
+      Math.abs(img.height * radius * 0.2),
     )
     //ctx.rotate(360 - (Math.PI / 180) * 35);
     ctx.restore()
