@@ -50,7 +50,22 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
       configuration: {
         sideFace: false,
         sideProfil: false,
-        path: '',
+        pathTige: '',
+        pathCotyle: '',
+        pathTigeDroit: '',
+        pathCotyleDroit: '',
+        colorTool1Actif: '',
+        colorTool1NonActif: '',
+        colorTool2Actif: '',
+        colorTool2NonActif: '',
+        colorTool3Actif: '',
+        colorTool3NonActif: '',
+        colorTool4: '',
+        colorTool5: '',
+        prosthesisHeadCenter: '',
+        prosthesisSize: '',
+        prosthesisAngle: '',
+        billeSize: '',
       },
       svgCursor: rotatedEllipticalRoiCursor,
     }
@@ -63,13 +78,23 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
     this.perpPoint = null
     this.perpPoint1 = null
     this.perpPoint2 = null
+    this.rapport = null
     this.distance = null
+    this.distanceCentre = null
     this.hauteur = null
     this.radius = null
     this.scale = null
+    this.side = 'droit'
     this.angleCervico = null
     this.setProsthesis = false
-    this.prosthesis = this._configuration.path
+    this.prosthesis = {
+      gauche: this._configuration.pathTige,
+      droit: this._configuration.pathTigeDroit,
+    }
+    this.cotyle = {
+      gauche: this._configuration.pathCotyle,
+      droit: this._configuration.pathCotyleDroit,
+    }
     console.log(this._configuration.sideFace)
     this.sideFace = this._configuration.sideFace
     this.sideProfil = this._configuration.sideProfil
@@ -91,7 +116,8 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
       this.addedTools.includes('bille') &&
       this.addedTools.includes('circle') &&
       this.addedTools.includes('quadrilateral') &&
-      //this.addedTools.includes('prosthesis') &&
+      this.addedTools.includes('prosthesis') &&
+      this.addedTools.includes('cotyle') &&
       (this.addedTools.includes('hauteurTemoin') || this.sideFace == false) &&
       (this.addedTools.includes('hauteurJambe') || this.sideFace == false)
     ) {
@@ -219,6 +245,24 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
           },
         },
       }
+    } else if (!this.addedTools.includes('cotyle')) {
+      this.addedTools.push('cotyle')
+      return {
+        tool: 'cotyle',
+        visible: true,
+        active: true,
+        color: undefined,
+        invalidated: true,
+        handles: {
+          start: {
+            x: eventData.currentPoints.image.x,
+            y: eventData.currentPoints.image.y,
+            highlight: true,
+            active: false,
+            key: 'start',
+          },
+        },
+      }
     } else if (!this.addedTools.includes('quadrilateral')) {
       this.addedTools.push('quadrilateral')
       return {
@@ -274,7 +318,7 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
           },
         },
       }
-    } /*else if (!this.addedTools.includes('prosthesis')) {
+    } else if (!this.addedTools.includes('prosthesis')) {
       this.addedTools.push('prosthesis')
       return {
         tool: 'prosthesis',
@@ -290,24 +334,9 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             active: false,
             key: 'start',
           },
-          end: {
-            x: eventData.currentPoints.image.x,
-            y: eventData.currentPoints.image.y,
-            highlight: true,
-            active: true,
-            key: 'end',
-          },
-          textBox: {
-            active: false,
-            hasMoved: false,
-            movesIndependently: false,
-            drawnIndependently: true,
-            allowedOutsideImage: true,
-            hasBoundingBox: true,
-          },
         },
       }
-    }*/ else if (
+    } else if (
       !this.addedTools.includes('hauteurTemoin') &&
       this.sideFace == true
     ) {
@@ -517,8 +546,7 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
     coords: any,
     interactionType: any = 'mouse',
   ) {
-    const validParameters =
-      data && data.handles && data.handles.start && data.handles.end
+    const validParameters = data && data.handles && data.handles.start
 
     if (!validParameters) {
       logger.warn(
@@ -586,10 +614,10 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
           continue
         }
         // Configure
-        cornerstoneTools.toolColors.setToolColor('blue')
+        //cornerstoneTools.toolColors.setToolColor(this._configuration.colorTool4)
         var color = cornerstoneTools.toolColors.getColorIfActive(data)
-        console.log(color)
-        console.log(cornerstoneTools.toolColors)
+        //console.log(color)
+        //console.log(cornerstoneTools.toolColors)
         var handleOptions = {
           color,
           handleRadius,
@@ -600,8 +628,12 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
         // first we set the scale
         if (data.tool === 'bille') {
           //tool color red
-          cornerstoneTools.toolColors.setToolColor('rgb(181, 0, 0)')
-          cornerstoneTools.toolColors.setActiveColor('rgb(255, 0, 0)')
+          cornerstoneTools.toolColors.setToolColor(
+            this._configuration.colorTool1NonActif,
+          )
+          cornerstoneTools.toolColors.setActiveColor(
+            this._configuration.colorTool1Actif,
+          )
           color = cornerstoneTools.toolColors.getColorIfActive(data)
           handleOptions = {
             color,
@@ -619,6 +651,7 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
           // Calculating the radius where startCanvas is the center of the circle to be drawn
           const radius = getDistance(startCanvas, endCanvas)
           this.scale = radius
+          this.rapport = this._configuration.billeSize / (radius * 2)
           // Draw Circle
           drawCircle(
             context,
@@ -634,8 +667,12 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
         // then we draw the head
         if (data.tool === 'circle') {
           //tool color white
-          cornerstoneTools.toolColors.setToolColor('rgb(200, 200, 200)')
-          cornerstoneTools.toolColors.setActiveColor('rgb(255, 255, 255)')
+          cornerstoneTools.toolColors.setToolColor(
+            this._configuration.colorTool2NonActif,
+          )
+          cornerstoneTools.toolColors.setActiveColor(
+            this._configuration.colorTool2Actif,
+          )
           color = cornerstoneTools.toolColors.getColorIfActive(data)
           handleOptions = {
             color,
@@ -653,7 +690,9 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
 
           // Calculating the radius where startCanvas is the center of the circle to be drawn
           const radius = getDistance(startCanvas, endCanvas)
-          this.radius = radius
+          console.log('info radius px' + radius)
+          this.radius = radius * this.rapport
+          console.log('info rayon' + this.radius)
           // Draw Circle
           drawCircle(
             context,
@@ -667,8 +706,12 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
           )
         } else if (data.tool === 'quadrilateral') {
           //tool color white
-          cornerstoneTools.toolColors.setToolColor('rgb(200, 200, 200)')
-          cornerstoneTools.toolColors.setActiveColor('rgb(255, 255, 255)')
+          cornerstoneTools.toolColors.setToolColor(
+            this._configuration.colorTool2NonActif,
+          )
+          cornerstoneTools.toolColors.setActiveColor(
+            this._configuration.colorTool2Actif,
+          )
           color = cornerstoneTools.toolColors.getColorIfActive(data)
           handleOptions = {
             color,
@@ -701,11 +744,23 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             'pixel',
             data.handles.initialRotation,
           )
+          console.log(this.middleLine)
+          if (this.middleLine.point1.x >= this.middleLine.point2.x) {
+            this.side = 'droit'
+            console.log('droite')
+          } else {
+            this.side = 'gauche'
+            console.log('gauche')
+          }
           this.setProsthesis = true
         } else if (data.tool === 'hauteurTemoin' && this.sideFace == true) {
           //tool color orange
-          cornerstoneTools.toolColors.setToolColor('rgb(220, 155, 41)')
-          cornerstoneTools.toolColors.setActiveColor('rgb(220, 205, 41)')
+          cornerstoneTools.toolColors.setToolColor(
+            this._configuration.colorTool3NonActif,
+          )
+          cornerstoneTools.toolColors.setActiveColor(
+            this._configuration.colorTool3Actif,
+          )
           color = cornerstoneTools.toolColors.getColorIfActive(data)
           handleOptions = {
             color,
@@ -725,7 +780,9 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
           )
         } else if (data.tool === 'hauteurJambe' && this.sideFace == true) {
           //tool color orange
-          cornerstoneTools.toolColors.setToolColor('rgb(220, 155, 41)')
+          cornerstoneTools.toolColors.setToolColor(
+            this._configuration.colorTool3NonActif,
+          )
           color = cornerstoneTools.toolColors.getColorIfActive(data)
           handleOptions = {
             color,
@@ -735,12 +792,12 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
           const toolsData = cornerstoneTools.getToolState(element, this.name)
 
           const start = {
-            x: toolsData.data[3].handles.start.x,
-            y: toolsData.data[3].handles.start.y,
+            x: toolsData.data[5].handles.start.x,
+            y: toolsData.data[5].handles.start.y,
           }
           const end = {
-            x: toolsData.data[3].handles.end.x,
-            y: toolsData.data[3].handles.end.y,
+            x: toolsData.data[5].handles.end.x,
+            y: toolsData.data[5].handles.end.y,
           }
           //console.log(toolsData.data[3]);
           const coef: number = (start.y - end.y) / (start.x - end.x)
@@ -763,11 +820,18 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             p2,
             data.handles.start,
           )
-          this.hauteur = Math.sqrt(
+          /*this.hauteur = Math.sqrt(
             Math.pow(data.handles.start.x - this.perpPoint1.x, 2) +
               Math.pow(data.handles.start.y - this.perpPoint1.y, 2),
+          )*this.rapport*/
+          const getDistance = cornerstoneMath.point.distance
+          console.log(
+            'info distance px ' +
+              getDistance(data.handles.start, this.perpPoint1),
           )
-          console.log(this.hauteur)
+          this.hauteur =
+            getDistance(data.handles.start, this.perpPoint1) * this.rapport
+          console.log('info hauteur' + this.hauteur)
           drawLine(
             ctx,
             element,
@@ -807,8 +871,10 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
           //this.addedTools.includes('quadrilateral')
           this.setProsthesis == true
         ) {
-          //tool color blue
-          cornerstoneTools.toolColors.setToolColor('rgb(200, 200, 200)')
+          //tool color
+          cornerstoneTools.toolColors.setToolColor(
+            this._configuration.colorTool2NonActif,
+          )
           color = cornerstoneTools.toolColors.getColorIfActive(data)
           /*handleOptions = {
             color,
@@ -827,15 +893,23 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             this.middleLine.point2,
             toolsData.data[1].handles.start,
           )
+          /*this.distance = Math.sqrt(
+            Math.pow(this.anglePoint[0].x - this.perpPoint.x, 2) +
+              Math.pow(this.anglePoint[0].y - this.perpPoint.y, 2),
+          )*this.rapport*/
+          const getDistance = cornerstoneMath.point.distance
+          this.distance =
+            getDistance(this.anglePoint[0], this.perpPoint) * this.rapport
+
           console.log(
             'le centre est en ' +
               toolsData.data[1].handles.start.x +
               ' ' +
               toolsData.data[1].handles.start.y,
           )
-          console.log(this.anglePoint)
-          console.log(ctx)
-          console.log('distance ' + this.distance)
+          //console.log(this.anglePoint)
+          //console.log(ctx)
+          console.log('info distance ' + this.distance)
           drawLines(
             ctx,
             element,
@@ -852,7 +926,8 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             x: toolsData.data[1].handles.start.x,
             y: toolsData.data[1].handles.start.y,
           }
-          drawProsthesis(
+          //dessin de la tige de la prothèse qui se fixe au repère du centre de tête
+          /*drawProsthesis(
             ctx,
             element,
             //data.handles.start,
@@ -863,12 +938,24 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             this.scale,
             this.middleLine,
             centerHead,
-          )
+            this._configuration.prosthesisHeadCenter,
+            this._configuration.prosthesisSize,
+            this._configuration.prosthesisAngle,
+            this._configuration.billeSize,
+          )*/
         }
 
-        /*if (data.tool === 'prosthesis') {
+        cornerstoneTools.toolColors.setToolColor(this._configuration.colorTool5)
+        if (data.tool === 'prosthesis') {
+          cornerstoneTools.toolColors.setToolColor(
+            this._configuration.colorTool5,
+          )
           const toolsData = cornerstoneTools.getToolState(element, this.name)
-          const centerHead = { x: toolsData.data[1].handles.start.x, y: toolsData.data[1].handles.start.y }
+          const centerHead = {
+            x: toolsData.data[1].handles.start.x,
+            y: toolsData.data[1].handles.start.y,
+          }
+          //dessin de la tige de la prothèse qui est manipulable avec une handle
           drawProsthesis(
             ctx,
             element,
@@ -877,11 +964,54 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             'pixel',
             { color },
             this.prosthesis,
+            this.side,
             this.scale,
             this.middleLine,
-            centerHead,
+            data.handles.start,
+            this._configuration.prosthesisHeadCenter,
+            this._configuration.prosthesisSize,
+            this._configuration.prosthesisAngle,
+            this._configuration.billeSize,
           )
-        }*/
+        }
+        if (data.tool === 'cotyle') {
+          cornerstoneTools.toolColors.setToolColor(
+            this._configuration.colorTool4,
+          )
+          const toolsData = cornerstoneTools.getToolState(element, this.name)
+          const centerHead = {
+            x: toolsData.data[1].handles.start.x,
+            y: toolsData.data[1].handles.start.y,
+          }
+          const rot = {
+            point1: {
+              x: toolsData.data[1].handles.start.x,
+              y: toolsData.data[1].handles.start.y,
+            },
+            point2: {
+              x: toolsData.data[1].handles.end.x,
+              y: toolsData.data[1].handles.end.y,
+            },
+          }
+          //dessin du cotyle
+          drawProsthesis(
+            ctx,
+            element,
+            //data.handles.start,
+            //data.handles.end,
+            'pixel',
+            { color },
+            this.cotyle,
+            this.side,
+            this.scale,
+            rot,
+            data.handles.start,
+            this._configuration.prosthesisHeadCenter,
+            this._configuration.prosthesisSize,
+            this._configuration.prosthesisAngle,
+            this._configuration.billeSize,
+          )
+        }
 
         drawHandles(ctx, eventData, data.handles, handleOptions)
 

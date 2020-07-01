@@ -14,9 +14,14 @@ export default function(
   coordSystem = 'pixel',
   options: any,
   prothese: any,
+  side: any,
   radius: any,
   middleline: any,
   centerHead: any,
+  centerProsthesis: any,
+  sizeProsthesis: any,
+  angleProsthesis: any,
+  sizeBille: any,
 ) {
   if (coordSystem === 'pixel') {
     //start = cornerstone.pixelToCanvas(element, start)
@@ -37,7 +42,11 @@ export default function(
   }
   console.log()
   const img = new Image()
-  img.src = prothese
+  if (side == 'droit') {
+    img.src = prothese.droit
+  } else {
+    img.src = prothese.gauche
+  }
 
   path(context, options, (ctx: any) => {
     /*ctx.translate(start.x, start.y)
@@ -68,7 +77,7 @@ export default function(
     }
     //const angle = 0
     console.log(angle * (180 / Math.PI))
-    //ctx.rotate((Math.PI / 180) * 35) //offset
+    ctx.rotate((Math.PI / 180) * angleProsthesis) //offset
     ctx.rotate(angle)
 
     //ctx.translate(-(start.x + img.width), -(start.y + img.height))
@@ -77,19 +86,23 @@ export default function(
     //ctx.translate(-(headx), -(heady))
     console.log('angle : ' + angle)
     console.log('radius : ' + radius)
-    console.log(centerHead)
+    console.log(radius)
+    const longueur = Math.abs((sizeProsthesis.l * radius * 2) / sizeBille)
+    const largeur = Math.abs((sizeProsthesis.w * radius * 2) / sizeBille)
+    const longueurCentre =
+      centerHead.x - (centerProsthesis.x / sizeProsthesis.l) * longueur
+    const largeurCentre =
+      centerHead.y - (centerProsthesis.y / sizeProsthesis.w) * largeur
     ctx.drawImage(
       img,
-      centerHead.x - 44.236 * radius * 0.2,
-      centerHead.y - 16.131 * radius * 0.2,
-      //headx,
-      //heady,
-      //0,
-      //0,
-      //Math.abs(img.width ),
-      //Math.abs(img.height ),
-      Math.abs(img.width * radius * 0.2),
-      Math.abs(img.height * radius * 0.2),
+      //centerHead.x - centerProsthesis.x * radius * 0.2,
+      //centerHead.y - centerProsthesis.y * radius * 0.2,
+      longueurCentre,
+      largeurCentre,
+      //Math.abs(img.width * radius * 0.2),
+      //Math.abs(img.height * radius * 0.2),
+      longueur,
+      largeur,
     )
     //ctx.rotate(360 - (Math.PI / 180) * 35);
     ctx.restore()
