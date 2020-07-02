@@ -87,14 +87,8 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
     this.side = 'droit'
     this.angleCervico = null
     this.setProsthesis = false
-    this.prosthesis = {
-      gauche: this._configuration.pathTige,
-      droit: this._configuration.pathTigeDroit,
-    }
-    this.cotyle = {
-      gauche: this._configuration.pathCotyle,
-      droit: this._configuration.pathCotyleDroit,
-    }
+    this.prosthesis = null
+    this.cotyle = null
     console.log(this._configuration.sideFace)
     this.sideFace = this._configuration.sideFace
     this.sideProfil = this._configuration.sideProfil
@@ -685,7 +679,6 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             element,
             data.handles.start,
           )
-
           const endCanvas = cornerstone.pixelToCanvas(element, data.handles.end)
 
           // Calculating the radius where startCanvas is the center of the circle to be drawn
@@ -825,12 +818,13 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
               Math.pow(data.handles.start.y - this.perpPoint1.y, 2),
           )*this.rapport*/
           const getDistance = cornerstoneMath.point.distance
-          console.log(
-            'info distance px ' +
-              getDistance(data.handles.start, this.perpPoint1),
+          const startCanvas = cornerstone.pixelToCanvas(
+            element,
+            data.handles.start,
           )
-          this.hauteur =
-            getDistance(data.handles.start, this.perpPoint1) * this.rapport
+          const endCanvas = cornerstone.pixelToCanvas(element, this.perpPoint1)
+          console.log('info hauteur px ' + getDistance(startCanvas, endCanvas))
+          this.hauteur = getDistance(startCanvas, endCanvas) * this.rapport
           console.log('info hauteur' + this.hauteur)
           drawLine(
             ctx,
@@ -898,8 +892,13 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
               Math.pow(this.anglePoint[0].y - this.perpPoint.y, 2),
           )*this.rapport*/
           const getDistance = cornerstoneMath.point.distance
-          this.distance =
-            getDistance(this.anglePoint[0], this.perpPoint) * this.rapport
+          const startCanvas = cornerstone.pixelToCanvas(
+            element,
+            this.anglePoint[0],
+          )
+          const endCanvas = cornerstone.pixelToCanvas(element, this.perpPoint)
+          console.log('info distance px ' + getDistance(startCanvas, endCanvas))
+          this.distance = getDistance(startCanvas, endCanvas) * this.rapport
 
           console.log(
             'le centre est en ' +
@@ -947,6 +946,10 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
 
         cornerstoneTools.toolColors.setToolColor(this._configuration.colorTool5)
         if (data.tool === 'prosthesis') {
+          this.prosthesis = {
+            gauche: this._configuration.pathTige,
+            droit: this._configuration.pathTigeDroit,
+          }
           cornerstoneTools.toolColors.setToolColor(
             this._configuration.colorTool5,
           )
@@ -966,6 +969,7 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             this.prosthesis,
             this.side,
             this.scale,
+            this.rapport,
             this.middleLine,
             data.handles.start,
             this._configuration.prosthesisHeadCenter,
@@ -975,6 +979,10 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
           )
         }
         if (data.tool === 'cotyle') {
+          this.cotyle = {
+            gauche: this._configuration.pathCotyle,
+            droit: this._configuration.pathCotyleDroit,
+          }
           cornerstoneTools.toolColors.setToolColor(
             this._configuration.colorTool4,
           )
@@ -1004,6 +1012,7 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             this.cotyle,
             this.side,
             this.scale,
+            this.rapport,
             rot,
             data.handles.start,
             this._configuration.prosthesisHeadCenter,

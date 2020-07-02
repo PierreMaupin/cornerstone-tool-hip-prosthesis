@@ -16,6 +16,7 @@ export default function(
   prothese: any,
   side: any,
   radius: any,
+  rapport: any,
   middleline: any,
   centerHead: any,
   centerProsthesis: any,
@@ -87,8 +88,8 @@ export default function(
     console.log('angle : ' + angle)
     console.log('radius : ' + radius)
     console.log(radius)
-    const longueur = Math.abs((sizeProsthesis.l * radius * 2) / sizeBille)
-    const largeur = Math.abs((sizeProsthesis.w * radius * 2) / sizeBille)
+    const longueur = Math.abs(sizeProsthesis.l / rapport)
+    const largeur = Math.abs(sizeProsthesis.w / rapport)
     const longueurCentre =
       centerHead.x - (centerProsthesis.x / sizeProsthesis.l) * longueur
     const largeurCentre =

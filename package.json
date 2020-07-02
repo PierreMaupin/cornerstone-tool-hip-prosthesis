@@ -1,6 +1,6 @@
 {
   "name": "cornerstone-tools-hip-prosthesis-toolv2",
-  "version": "0.1.7",
+  "version": "0.1.9",
   "description": "An annotation tool for setting up a hip prosthesis. It is 3rd party library for cornerstoneTools",
   "keywords": [
     "cornerstone",
