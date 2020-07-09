@@ -81,6 +81,7 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
     this.rapport = null
     this.distance = null
     this.distanceCentre = null
+    this.lateralisation = null
     this.hauteur = null
     this.radius = null
     this.scale = null
@@ -826,6 +827,35 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
           console.log('info hauteur px ' + getDistance(startCanvas, endCanvas))
           this.hauteur = getDistance(startCanvas, endCanvas) * this.rapport
           console.log('info hauteur' + this.hauteur)
+
+          const centreTete = cornerstone.pixelToCanvas(
+            element,
+            toolsData.data[1].handles.start,
+          )
+          const centreTige = cornerstone.pixelToCanvas(
+            element,
+            toolsData.data[4].handles.start,
+          )
+          this.distanceCentre =
+            getDistance(centreTete, centreTige) * this.rapport
+          console.log('distanceCentre : ' + this.distanceCentre)
+          const point1 = {
+            x: toolsData.data[4].handles.start.x + 1000,
+            y: toolsData.data[4].handles.start.y + 1000 * coef,
+          }
+          const point2 = {
+            x: toolsData.data[4].handles.start.x - 1000,
+            y: toolsData.data[4].handles.start.y - 1000 * coef,
+          }
+          const perpoint = findPerpendicularPoint(
+            point1,
+            point2,
+            toolsData.data[1].handles.start,
+          )
+          const aa = cornerstone.pixelToCanvas(element, perpoint)
+          this.lateralisation = getDistance(centreTige, aa) * this.rapport
+          console.log('Lateralisation : ' + this.lateralisation)
+
           drawLine(
             ctx,
             element,
@@ -899,15 +929,12 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
           const endCanvas = cornerstone.pixelToCanvas(element, this.perpPoint)
           console.log('info distance px ' + getDistance(startCanvas, endCanvas))
           this.distance = getDistance(startCanvas, endCanvas) * this.rapport
-
           console.log(
             'le centre est en ' +
               toolsData.data[1].handles.start.x +
               ' ' +
               toolsData.data[1].handles.start.y,
           )
-          //console.log(this.anglePoint)
-          //console.log(ctx)
           console.log('info distance ' + this.distance)
           drawLines(
             ctx,
