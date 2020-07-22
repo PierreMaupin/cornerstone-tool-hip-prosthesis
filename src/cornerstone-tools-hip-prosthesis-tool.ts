@@ -14,6 +14,7 @@ import drawTextBox from './drawing/drawTextBox'
 //import prosthesis from './assets/prosthesis.svg'
 import findLine from './util/findMiddleLine'
 import drawCircle from './drawing/drawCircle'
+import drawArc from './drawing/drawArc'
 import cornerstoneMath from 'cornerstone-math'
 import findPerpendicularPoint from './util/findPerpendicularPoint'
 import findAnglePoint from './util/findAnglePoint'
@@ -63,9 +64,14 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
         colorTool4: '',
         colorTool5: '',
         prosthesisHeadCenter: '',
+        prosthesisplusCenter: '',
+        prosthesismoinsCenter: '',
+        prosthesisRotCenter: '',
         prosthesisSize: '',
         prosthesisAngle: '',
         billeSize: '',
+        lockTige: '',
+        tete: '',
       },
       svgCursor: rotatedEllipticalRoiCursor,
     }
@@ -78,11 +84,13 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
     this.perpPoint = null
     this.perpPoint1 = null
     this.perpPoint2 = null
+    this.anglePoint = null
     this.rapport = null
     this.distance = null
     this.distanceCentre = null
     this.lateralisation = null
     this.hauteur = null
+    this.rayonPx = null
     this.radius = null
     this.scale = null
     this.side = 'droit'
@@ -111,7 +119,7 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
       this.addedTools.includes('bille') &&
       this.addedTools.includes('circle') &&
       this.addedTools.includes('quadrilateral') &&
-      this.addedTools.includes('prosthesis') &&
+      //this.addedTools.includes('prosthesis') &&
       //this.addedTools.includes('cotyle') &&
       (this.addedTools.includes('hauteurTemoin') || this.sideFace == false) &&
       (this.addedTools.includes('hauteurJambe') || this.sideFace == false)
@@ -149,6 +157,11 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             measurementData.handles.corner2.y = measurementData.handles.start.y
             measurementData.handles.corner2.position = 'start'
             measurementData.handles.corner2.isFirst = false
+          }
+          if (measurementData.tool === 'circle') {
+            measurementData.handles.rot.x = measurementData.handles.start.x
+            measurementData.handles.rot.y = measurementData.handles.start.y
+            measurementData.handles.rot.isFirst = false
           }
 
           this.updateCachedStats(image, element, measurementData)
@@ -206,7 +219,7 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
           },
         },
       }
-    }else if (
+    } else if (
       !this.addedTools.includes('hauteurTemoin') &&
       this.sideFace == true
     ) {
@@ -302,6 +315,15 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             active: true,
             key: 'end',
           },
+          rot: {
+            x: eventData.currentPoints.image.x,
+            y: eventData.currentPoints.image.y,
+            position: null,
+            highlight: true,
+            active: false,
+            isFirst: true,
+            key: 'corner1',
+          },
           textBox: {
             active: false,
             hasMoved: false,
@@ -330,7 +352,9 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
           },
         },
       }
-    }*/ else if (!this.addedTools.includes('quadrilateral')) {
+    }*/ else if (
+      !this.addedTools.includes('quadrilateral')
+    ) {
       this.addedTools.push('quadrilateral')
       return {
         tool: 'quadrilateral',
@@ -374,6 +398,24 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             isFirst: true,
             key: 'corner2',
           },
+          centerTige: {
+            x: this.headCenter.x,
+            y: this.headCenter.y,
+            position: null,
+            highlight: true,
+            active: false,
+            isFirst: true,
+            key: 'corner1',
+          },
+          rotTige: {
+            x: this.headCenter.x,
+            y: this.headCenter.y + 40,
+            position: null,
+            highlight: true,
+            active: false,
+            isFirst: true,
+            key: 'corner1',
+          },
           initialRotation: eventData.viewport.rotation,
           textBox: {
             active: false,
@@ -385,7 +427,7 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
           },
         },
       }
-    } else if (!this.addedTools.includes('prosthesis')) {
+    } /* else if (!this.addedTools.includes('prosthesis')) {
       this.addedTools.push('prosthesis')
       return {
         tool: 'prosthesis',
@@ -403,7 +445,7 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
           },
         },
       }
-    } 
+    }*/
   }
 
   public mouseMoveCallback(e: any) {
@@ -661,6 +703,7 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
         }
         // then we draw the head
         if (data.tool === 'circle') {
+          this.headCenter = data.handles.start
           //tool color white
           cornerstoneTools.toolColors.setToolColor(
             this._configuration.colorTool2NonActif,
@@ -685,6 +728,7 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
           // Calculating the radius where startCanvas is the center of the circle to be drawn
           const radius = getDistance(startCanvas, endCanvas)
           console.log('info radius px' + radius)
+          this.rayonPx = radius
           this.radius = radius * this.rapport
           console.log('info rayon' + this.radius)
           // Draw Circle
@@ -711,17 +755,146 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             x: toolsData.data[3].handles.start.x,
             y: toolsData.data[3].handles.start.y,
           }
+          console.log(toolsData.data[3].handles)
+          //toolsData.data[3].handles.rot.y = toolsData.data[3].handles.start.y + getDistance(startCanvas, endCanvas)
+
+          /*if(toolsData.data[3].handles.rot.x - toolsData.data[3].handles.start.x >= getDistance(toolsData.data[3].handles.start, toolsData.data[3].handles.end)){
+            toolsData.data[3].handles.rot.x = toolsData.data[3].handles.start.x + getDistance(toolsData.data[3].handles.start, toolsData.data[3].handles.end)
+          }
+          if(toolsData.data[3].handles.rot.y - toolsData.data[3].handles.start.y >= getDistance(toolsData.data[3].handles.start, toolsData.data[3].handles.end)){
+            toolsData.data[3].handles.rot.y = toolsData.data[3].handles.start.y + getDistance(toolsData.data[3].handles.start, toolsData.data[3].handles.end)
+          }*/
+          if (
+            getDistance(
+              toolsData.data[3].handles.start,
+              toolsData.data[3].handles.rot,
+            ) >=
+              getDistance(
+                toolsData.data[3].handles.start,
+                toolsData.data[3].handles.end,
+              ) &&
+            toolsData.data[4]
+          ) {
+            const coef =
+              (toolsData.data[3].handles.rot.y -
+                toolsData.data[3].handles.start.y) /
+              (toolsData.data[3].handles.rot.x -
+                toolsData.data[3].handles.start.x)
+            console.log('coef cercle ' + coef)
+            const diffx =
+              toolsData.data[3].handles.rot.x -
+              toolsData.data[3].handles.start.x -
+              getDistance(
+                toolsData.data[3].handles.start,
+                toolsData.data[3].handles.end,
+              )
+            var i = 0
+            if (
+              toolsData.data[3].handles.start.x <
+              toolsData.data[3].handles.rot.x
+            ) {
+              while (
+                i < 1000 &&
+                getDistance(
+                  toolsData.data[3].handles.start,
+                  toolsData.data[3].handles.rot,
+                ) >=
+                  getDistance(
+                    toolsData.data[3].handles.start,
+                    toolsData.data[3].handles.end,
+                  )
+              ) {
+                toolsData.data[3].handles.rot.x =
+                  toolsData.data[3].handles.rot.x - 1
+                //toolsData.data[3].handles.rot.y = toolsData.data[3].handles.rot.y - diffx * coef
+                i++
+              }
+            } else {
+              while (
+                i < 1000 &&
+                getDistance(
+                  toolsData.data[3].handles.start,
+                  toolsData.data[3].handles.rot,
+                ) >=
+                  getDistance(
+                    toolsData.data[3].handles.start,
+                    toolsData.data[3].handles.end,
+                  )
+              ) {
+                toolsData.data[3].handles.rot.x =
+                  toolsData.data[3].handles.rot.x + 1
+                //toolsData.data[3].handles.rot.y = toolsData.data[3].handles.rot.y - diffx * coef
+                i++
+              }
+            }
+          }
+
+          if (
+            getDistance(
+              toolsData.data[3].handles.start,
+              toolsData.data[3].handles.rot,
+            ) <=
+              getDistance(
+                toolsData.data[3].handles.start,
+                toolsData.data[3].handles.end,
+              ) &&
+            toolsData.data[4]
+          ) {
+            var i = 0
+            if (
+              toolsData.data[3].handles.start.x >
+              toolsData.data[3].handles.rot.x
+            ) {
+              while (
+                i < 1000 &&
+                getDistance(
+                  toolsData.data[3].handles.start,
+                  toolsData.data[3].handles.rot,
+                ) <=
+                  getDistance(
+                    toolsData.data[3].handles.start,
+                    toolsData.data[3].handles.end,
+                  )
+              ) {
+                toolsData.data[3].handles.rot.x =
+                  toolsData.data[3].handles.rot.x - 1
+                //toolsData.data[3].handles.rot.y = toolsData.data[3].handles.rot.y - diffx * coef
+                i++
+              }
+            } else {
+              while (
+                i < 1000 &&
+                getDistance(
+                  toolsData.data[3].handles.start,
+                  toolsData.data[3].handles.rot,
+                ) <=
+                  getDistance(
+                    toolsData.data[3].handles.start,
+                    toolsData.data[3].handles.end,
+                  )
+              ) {
+                toolsData.data[3].handles.rot.x =
+                  toolsData.data[3].handles.rot.x + 1
+                //toolsData.data[3].handles.rot.y = toolsData.data[3].handles.rot.y - diffx * coef
+                i++
+              }
+            }
+            /*if(toolsData.data[3].handles.start.y - toolsData.data[3].handles.rot.y> getDistance(toolsData.data[3].handles.start, toolsData.data[3].handles.rot)){
+              toolsData.data[3].handles.rot.y = toolsData.data[3].handles.start.y - getDistance(toolsData.data[3].handles.start, toolsData.data[3].handles.rot)
+            }*/
+          }
+
           var rot = {
             point1: {
               x: toolsData.data[3].handles.start.x,
               y: toolsData.data[3].handles.start.y,
             },
             point2: {
-              x: toolsData.data[3].handles.end.x,
-              y: toolsData.data[3].handles.end.y,
+              x: toolsData.data[3].handles.rot.x,
+              y: toolsData.data[3].handles.rot.y,
             },
           }
-          if(!toolsData.data[4]){
+          if (!toolsData.data[4]) {
             rot = {
               point1: {
                 x: 0,
@@ -732,6 +905,10 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
                 y: 1,
               },
             }
+          }
+          const line = {
+            point1: { x: 0, y: 0 },
+            point2: { x: 0, y: 100 },
           }
           //dessin du cotyle
           drawProsthesis(
@@ -746,11 +923,17 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             this.scale,
             this.rapport,
             rot,
+            line,
             data.handles.start,
             this._configuration.prosthesisHeadCenter,
+            this._configuration.prosthesisplusCenter,
+            this._configuration.prosthesismoinsCenter,
+            this._configuration.prosthesisRotCenter,
             this._configuration.prosthesisSize,
             this._configuration.prosthesisAngle,
             this._configuration.billeSize,
+            'cotyle',
+            this._configuration.tete,
           )
         } else if (data.tool === 'quadrilateral') {
           //tool color white
@@ -873,43 +1056,46 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
               Math.pow(data.handles.start.y - this.perpPoint1.y, 2),
           )*this.rapport*/
           const getDistance = cornerstoneMath.point.distance
+
           const startCanvas = cornerstone.pixelToCanvas(
             element,
             data.handles.start,
           )
           const endCanvas = cornerstone.pixelToCanvas(element, this.perpPoint1)
+
           console.log('info hauteur px ' + getDistance(startCanvas, endCanvas))
           this.hauteur = getDistance(startCanvas, endCanvas) * this.rapport
           console.log('info hauteur' + this.hauteur)
 
-          if(toolsData.data[5]){
-          const centreTete = cornerstone.pixelToCanvas(
-            element,
-            toolsData.data[3].handles.start,
-          )
-          const centreTige = cornerstone.pixelToCanvas(
-            element,
-            toolsData.data[5].handles.start,
-          )
-          this.distanceCentre =
-            getDistance(centreTete, centreTige) * this.rapport
-          console.log('distanceCentre : ' + this.distanceCentre)
-          const point1 = {
-            x: toolsData.data[1].handles.start.x + 1000,
-            y: toolsData.data[1].handles.start.y + 1000 * coef,
-          }
-          const point2 = {
-            x: toolsData.data[1].handles.start.x - 1000,
-            y: toolsData.data[1].handles.start.y - 1000 * coef,
-          }
-          const perpoint = findPerpendicularPoint(
-            point1,
-            point2,
-            toolsData.data[1].handles.start,
-          )
-          const aa = cornerstone.pixelToCanvas(element, perpoint)
-          this.lateralisation = getDistance(centreTige, aa) * this.rapport
-          console.log('Lateralisation : ' + this.lateralisation)
+          if (toolsData.data[5]) {
+            const centreTete = cornerstone.pixelToCanvas(
+              element,
+              toolsData.data[3].handles.start,
+            )
+            const centreTige = cornerstone.pixelToCanvas(
+              element,
+              toolsData.data[5].handles.start,
+            )
+            this.distanceCentre =
+              getDistance(centreTete, centreTige) * this.rapport
+            console.log('distanceCentre : ' + this.distanceCentre)
+            const point1 = {
+              x: toolsData.data[1].handles.start.x + 1000,
+              y: toolsData.data[1].handles.start.y + 1000 * coef,
+            }
+            const point2 = {
+              x: toolsData.data[1].handles.start.x - 1000,
+              y: toolsData.data[1].handles.start.y - 1000 * coef,
+            }
+            const perpoint = findPerpendicularPoint(
+              point1,
+              point2,
+              toolsData.data[3].handles.start,
+            )
+            const centretete = cornerstone.pixelToCanvas(element, perpoint)
+            this.lateralisation =
+              getDistance(centreTige, centretete) * this.rapport
+            console.log('Lateralisation : ' + this.lateralisation)
           }
           drawLine(
             ctx,
@@ -972,6 +1158,19 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             this.middleLine.point2,
             toolsData.data[3].handles.start,
           )
+          if (
+            this.anglePoint[0].x > 0 &&
+            this.anglePoint[0].y > 0 &&
+            this._configuration.lockTige == true
+          ) {
+            toolsData.data[4].handles.centerTige = this.anglePoint[0]
+          }
+          if (this._configuration.lockTige == true) {
+            toolsData.data[4].handles.rotTige.x =
+              toolsData.data[4].handles.centerTige.x
+            toolsData.data[4].handles.rotTige.y =
+              toolsData.data[4].handles.centerTige.y + 40
+          }
           /*this.distance = Math.sqrt(
             Math.pow(this.anglePoint[0].x - this.perpPoint.x, 2) +
               Math.pow(this.anglePoint[0].y - this.perpPoint.y, 2),
@@ -1003,12 +1202,123 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             'pixel',
             data.handles.initialRotation,
           )
+          //dessin de la tige de la prothèse qui se fixe au repère du centre de tête
+          this.prosthesis = {
+            gauche: this._configuration.pathTige,
+            droit: this._configuration.pathTigeDroit,
+          }
+          cornerstoneTools.toolColors.setToolColor(
+            this._configuration.colorTool5,
+          )
           const centerHead = {
             x: toolsData.data[3].handles.start.x,
             y: toolsData.data[3].handles.start.y,
           }
-          //dessin de la tige de la prothèse qui se fixe au repère du centre de tête
-          /*drawProsthesis(
+
+          const r = cornerstone.pixelToCanvas(element, this.rayonPx)
+          const xr = cornerstone.pixelToCanvas(
+            element,
+            toolsData.data[4].handles.rotTige.x,
+          )
+          const yr = cornerstone.pixelToCanvas(
+            element,
+            toolsData.data[4].handles.rotTige.y,
+          )
+          const xc = cornerstone.pixelToCanvas(
+            element,
+            toolsData.data[4].handles.centerTige.x,
+          )
+          const yc = cornerstone.pixelToCanvas(
+            element,
+            toolsData.data[4].handles.centerTige.y,
+          )
+          //const r = this.rayonPx
+
+          if (toolsData.data[4].handles.centerTige.active) {
+            this.flag = true
+          } else {
+            this.flag = false
+          }
+          if (this.flag) {
+            console.log('yoloool bouge')
+            toolsData.data[4].handles.rotTige.x =
+              toolsData.data[4].handles.centerTige.x + this.diffx
+            toolsData.data[4].handles.rotTige.y =
+              toolsData.data[4].handles.centerTige.y + this.diffy
+          } else {
+            this.diffx =
+              toolsData.data[4].handles.rotTige.x -
+              toolsData.data[4].handles.centerTige.x
+            this.diffy =
+              toolsData.data[4].handles.rotTige.y -
+              toolsData.data[4].handles.centerTige.y
+          }
+
+          console.log(toolsData.data[4].handles.rotTige)
+          if (toolsData.data[4].handles.rotTige.active) {
+            console.log('je bouge!!')
+            while (
+              toolsData.data[4].handles.rotTige.x <
+              toolsData.data[4].handles.centerTige.x - 100 / this.rapport
+            ) {
+              toolsData.data[4].handles.rotTige.x += 1
+            }
+            while (
+              toolsData.data[4].handles.rotTige.x >
+              toolsData.data[4].handles.centerTige.x + 100 / this.rapport
+            ) {
+              toolsData.data[4].handles.rotTige.x -= 1
+            }
+            toolsData.data[4].handles.rotTige.y =
+              toolsData.data[4].handles.centerTige.y + 40
+          }
+          console.log(toolsData.data[4].handles.rotTige)
+
+          /*
+          if(getDistance(toolsData.data[4].handles.rotTige, toolsData.data[4].handles.centerTige) >= r){
+            var i = 0;
+            if(
+              toolsData.data[4].handles.rotTige.x < toolsData.data[4].handles.centerTige.x - r
+              || toolsData.data[4].handles.rotTige.x > toolsData.data[4].handles.centerTige.x + r
+            ){
+              toolsData.data[4].handles.rotTige.x = toolsData.data[4].handles.centerTige.x + r
+            }
+            else if(toolsData.data[4].handles.rotTige.y < toolsData.data[4].handles.centerTige.y + r){
+              while(i<1000 && getDistance(toolsData.data[4].handles.rotTige, toolsData.data[4].handles.centerTige) >= r){
+                toolsData.data[4].handles.rotTige.y = toolsData.data[4].handles.rotTige.y + 1
+                i++
+              }
+            }
+            else{
+              while(i<1000 && getDistance(toolsData.data[4].handles.rotTige, toolsData.data[4].handles.centerTige) >= r){
+                toolsData.data[4].handles.rotTige.y = toolsData.data[4].handles.rotTige.y - 1
+                i++
+              }
+            }
+          }
+            
+        else if(getDistance(toolsData.data[4].handles.rotTige, toolsData.data[4].handles.centerTige) <= r){
+          var i = 0;
+          if(toolsData.data[4].handles.rotTige.y < toolsData.data[4].handles.centerTige.y + r){
+            while(i<1000 && getDistance(toolsData.data[4].handles.rotTige, toolsData.data[4].handles.centerTige) <= r){
+              toolsData.data[4].handles.rotTige.y = toolsData.data[4].handles.rotTige.y - 1
+              i++
+            }
+          }
+          else{
+            while(i<1000 && getDistance(toolsData.data[4].handles.rotTige, toolsData.data[4].handles.centerTige) <= r){
+              toolsData.data[4].handles.rotTige.y = toolsData.data[4].handles.rotTige.y + 1
+              i++
+            }
+          }
+        }*/
+
+          const line = {
+            point1: toolsData.data[4].handles.rotTige,
+            point2: toolsData.data[4].handles.centerTige,
+          }
+          //dessin de la tige de la prothèse qui est manipulable avec une handle
+          drawProsthesis(
             ctx,
             element,
             //data.handles.start,
@@ -1016,18 +1326,55 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             'pixel',
             { color },
             this.prosthesis,
+            this.side,
             this.scale,
+            this.rapport,
             this.middleLine,
-            centerHead,
+            line,
+            toolsData.data[4].handles.centerTige,
             this._configuration.prosthesisHeadCenter,
+            this._configuration.prosthesisplusCenter,
+            this._configuration.prosthesismoinsCenter,
+            this._configuration.prosthesisRotCenter,
             this._configuration.prosthesisSize,
             this._configuration.prosthesisAngle,
             this._configuration.billeSize,
+            'tige',
+            this._configuration.tete,
+          )
+          /*drawArc(
+            context,
+            element,
+            toolsData.data[4].handles.centerTige,
+            this.rayonPx,
+            {
+              color,
+            },
+            'pixel',
           )*/
+          const p1 = {
+            x: toolsData.data[4].handles.centerTige.x - 100,
+            y: toolsData.data[4].handles.centerTige.y + 40,
+          }
+          const p2 = {
+            x: toolsData.data[4].handles.centerTige.x + 100,
+            y: toolsData.data[4].handles.centerTige.y + 40,
+          }
+          drawLine(
+            ctx,
+            element,
+            p1,
+            p2,
+            {
+              color,
+            },
+            'pixel',
+            data.handles.initialRotation,
+          )
         }
 
         cornerstoneTools.toolColors.setToolColor(this._configuration.colorTool5)
-        if (data.tool === 'prosthesis') {
+        /*if (data.tool === 'prosthesis') {
           this.prosthesis = {
             gauche: this._configuration.pathTige,
             droit: this._configuration.pathTigeDroit,
@@ -1059,7 +1406,7 @@ export default class HipProsthesisTool extends BaseAnnotationTool {
             this._configuration.prosthesisAngle,
             this._configuration.billeSize,
           )
-        }
+        }*/
         /*if (data.tool === 'cotyle') {
           this.cotyle = {
             gauche: this._configuration.pathCotyle,

@@ -3,6 +3,7 @@ import cornerstoneTools from 'cornerstone-tools'
 
 import findAnglePoint from '../util/findAnglePoint'
 import prosthesis from '../assets/prosthesis.svg'
+import drawCircle from './drawCircle'
 
 const path = cornerstoneTools.import('drawing/path')
 
@@ -18,16 +19,23 @@ export default function(
   radius: any,
   rapport: any,
   middleline: any,
+  line: any,
+  coord: any,
   centerHead: any,
-  centerProsthesis: any,
+  pluscenter: any,
+  moinscenter: any,
+  rotcenter: any,
   sizeProsthesis: any,
   angleProsthesis: any,
   sizeBille: any,
+  type: any,
+  tete: any,
 ) {
+  const x = coord
   if (coordSystem === 'pixel') {
     //start = cornerstone.pixelToCanvas(element, start)
     //end = cornerstone.pixelToCanvas(element, end)
-    centerHead = cornerstone.pixelToCanvas(element, centerHead)
+    coord = cornerstone.pixelToCanvas(element, coord)
   }
 
   const viewport = cornerstone.getViewport(element)
@@ -59,7 +67,7 @@ export default function(
 
     //ctx.translate(start.x + img.width, start.y + img.height)
     //ctx.translate(start.x + 44.236 * scale * radius * 0.2, start.y + 16.131 * scale * radius * 0.2)
-    ctx.translate(centerHead.x, centerHead.y)
+    ctx.translate(coord.x, coord.y)
     //ctx.translate(headx, heady)
 
     //const p1 = { x: start.x, y: start.y }
@@ -76,6 +84,16 @@ export default function(
     } else {
       angle = -findAngle(p1, p2, p3)
     }
+
+    const p4 = line.point1
+    const p5 = line.point2
+    const p6 = { x: line.point2.x, y: line.point1.y }
+    console.log(line)
+    if (line.point1.x >= line.point2.x) {
+      angle = angle + findAngle(p4, p5, p6)
+    } else {
+      angle = angle - findAngle(p4, p5, p6)
+    }
     //const angle = 0
     console.log(angle * (180 / Math.PI))
     ctx.rotate((Math.PI / 180) * angleProsthesis) //offset
@@ -83,21 +101,22 @@ export default function(
 
     //ctx.translate(-(start.x + img.width), -(start.y + img.height))
     //ctx.translate(-(start.x + 44.236 * scale * radius * 0.2), -(start.y + 16.131* scale * radius * 0.2))
-    ctx.translate(-centerHead.x, -centerHead.y)
+    ctx.translate(-coord.x, -coord.y)
     //ctx.translate(-(headx), -(heady))
     console.log('angle : ' + angle)
     console.log('radius : ' + radius)
     console.log(radius)
     const longueur = Math.abs(sizeProsthesis.l / rapport)
     const largeur = Math.abs(sizeProsthesis.w / rapport)
-    const longueurCentre =
-      centerHead.x - (centerProsthesis.x / sizeProsthesis.l) * longueur
-    const largeurCentre =
-      centerHead.y - (centerProsthesis.y / sizeProsthesis.w) * largeur
+
+    const longueurCentre = coord.x - (rotcenter.x / sizeProsthesis.l) * longueur
+    const largeurCentre = coord.y - (rotcenter.y / sizeProsthesis.w) * largeur
+
+    console.log(longueurCentre + ' ' + largeurCentre)
     ctx.drawImage(
       img,
-      //centerHead.x - centerProsthesis.x * radius * 0.2,
-      //centerHead.y - centerProsthesis.y * radius * 0.2,
+      //coord.x - rotcenter.x * radius * 0.2,
+      //coord.y - rotcenter.y * radius * 0.2,
       longueurCentre,
       largeurCentre,
       //Math.abs(img.width * radius * 0.2),
@@ -105,6 +124,25 @@ export default function(
       longueur,
       largeur,
     )
+
+    if (type == 'tige') {
+      var len = 0
+      var wid = 0
+      if (tete == 'plus') {
+        var len = longueurCentre + (pluscenter.x / sizeProsthesis.l) * longueur
+        var wid = largeurCentre + (pluscenter.y / sizeProsthesis.w) * largeur
+      } else if (tete == 'moins') {
+        var len = longueurCentre + (moinscenter.x / sizeProsthesis.l) * longueur
+        var wid = largeurCentre + (moinscenter.y / sizeProsthesis.w) * largeur
+      } else {
+        var len = longueurCentre + (centerHead.x / sizeProsthesis.l) * longueur
+        var wid = largeurCentre + (centerHead.y / sizeProsthesis.w) * largeur
+      }
+      const rayon = 28 / (2 * rapport)
+
+      ctx.arc(len, wid, rayon, 0, 2 * Math.PI)
+      //ctx.arc(len, wid, 2, 0, 2 * Math.PI)
+    }
     //ctx.rotate(360 - (Math.PI / 180) * 35);
     ctx.restore()
     /*ctx.translate(start.x, start.y)

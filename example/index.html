@@ -78,7 +78,7 @@
       const configuration = {
         sideFace: true,
         sideProfil : false,
-        pathTige:'9.svg',
+        pathTige:'taille1tete28coteGauche.svg',
         pathCotyle:'cotyle.svg',
         pathTigeDroit:'9droit.svg',
         pathCotyleDroit:'cotyledroit.svg',
@@ -90,10 +90,15 @@
         colorTool3NonActif : 'rgb(220, 155, 41)',
         colorTool4 : 'rgb(117, 228, 230)',
         colorTool5 : 'rgb(225, 127, 227)',
-        prosthesisHeadCenter : {x:124, y:84},
+        prosthesisHeadCenter : {x:162.747, y:45.258},
+        prosthesisplusCenter: {x:0, y:0},
+        prosthesismoinsCenter: {x:0, y:0},
+        prosthesisRotCenter : {x:124, y:84},
         prosthesisSize : {l:210, w:297},
         prosthesisAngle: 0,
-        billeSize: 28,     
+        billeSize: 28, 
+        lockTige: false, 
+        tete: 'centre',   
       }
       cornerstoneTools.addTool(HipProsthesisTool, { configuration });
       cornerstoneTools.setToolActive("HipProsthesis", { mouseButtonMask: 1 });
