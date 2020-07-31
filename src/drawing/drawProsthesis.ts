@@ -30,6 +30,9 @@ export default function(
   sizeBille: any,
   type: any,
   tete: any,
+  tetePos: any,
+  teteNeg: any,
+  diamTete: any,
 ) {
   const x = coord
   if (coordSystem === 'pixel') {
@@ -57,22 +60,12 @@ export default function(
     img.src = prothese.gauche
   }
 
-  path(context, options, (ctx: any) => {
-    /*ctx.translate(start.x, start.y)
-    ctx.rotate((Math.PI / 180) * 35)
-    ctx.translate(-start.x, -start.y)*/
+  var len = 0
+  var wid = 0
+  path(context, { color: 'rgb(0,0,0)' }, (ctx: any) => {
     ctx.save()
     console.log('centrepoint en  ' + centerPoint.x + ' ' + centerPoint.y)
-    //ctx.translate(centerPoint.x, centerPoint.y)
-
-    //ctx.translate(start.x + img.width, start.y + img.height)
-    //ctx.translate(start.x + 44.236 * scale * radius * 0.2, start.y + 16.131 * scale * radius * 0.2)
     ctx.translate(coord.x, coord.y)
-    //ctx.translate(headx, heady)
-
-    //const p1 = { x: start.x, y: start.y }
-    //const p2 = { x: start.x, y: start.y+10 }
-    //const p3 = { x: start.x+10, y: (Math.abs((start.x+10)*(-coef))+start.y+10) }
 
     const p1 = middleline.point1
     const p2 = middleline.point2
@@ -90,19 +83,15 @@ export default function(
     const p6 = { x: line.point2.x, y: line.point1.y }
     console.log(line)
     if (line.point1.x >= line.point2.x) {
-      angle = angle + findAngle(p4, p5, p6)
+      angle = angle + findAngle(p4, p5, p6) * -0.25
     } else {
-      angle = angle - findAngle(p4, p5, p6)
+      angle = angle - findAngle(p4, p5, p6) * -0.25
     }
     //const angle = 0
     console.log(angle * (180 / Math.PI))
     ctx.rotate((Math.PI / 180) * angleProsthesis) //offset
     ctx.rotate(angle)
-
-    //ctx.translate(-(start.x + img.width), -(start.y + img.height))
-    //ctx.translate(-(start.x + 44.236 * scale * radius * 0.2), -(start.y + 16.131* scale * radius * 0.2))
     ctx.translate(-coord.x, -coord.y)
-    //ctx.translate(-(headx), -(heady))
     console.log('angle : ' + angle)
     console.log('radius : ' + radius)
     console.log(radius)
@@ -113,42 +102,34 @@ export default function(
     const largeurCentre = coord.y - (rotcenter.y / sizeProsthesis.w) * largeur
 
     console.log(longueurCentre + ' ' + largeurCentre)
-    ctx.drawImage(
-      img,
-      //coord.x - rotcenter.x * radius * 0.2,
-      //coord.y - rotcenter.y * radius * 0.2,
-      longueurCentre,
-      largeurCentre,
-      //Math.abs(img.width * radius * 0.2),
-      //Math.abs(img.height * radius * 0.2),
-      longueur,
-      largeur,
-    )
+    ctx.drawImage(img, longueurCentre, largeurCentre, longueur, largeur)
 
+    console.log(options)
     if (type == 'tige') {
-      var len = 0
-      var wid = 0
-      if (tete == 'plus') {
-        var len = longueurCentre + (pluscenter.x / sizeProsthesis.l) * longueur
-        var wid = largeurCentre + (pluscenter.y / sizeProsthesis.w) * largeur
-      } else if (tete == 'moins') {
-        var len = longueurCentre + (moinscenter.x / sizeProsthesis.l) * longueur
-        var wid = largeurCentre + (moinscenter.y / sizeProsthesis.w) * largeur
-      } else {
-        var len = longueurCentre + (centerHead.x / sizeProsthesis.l) * longueur
-        var wid = largeurCentre + (centerHead.y / sizeProsthesis.w) * largeur
+      console.log('tete ' + tete)
+      if (tetePos == 'centre') {
+        len = longueurCentre + (pluscenter.x / sizeProsthesis.l) * longueur
+        wid = largeurCentre + (pluscenter.y / sizeProsthesis.w) * largeur
+        const rayon = diamTete / (2 * rapport)
+        ctx.arc(len, wid, rayon, 0, 2 * Math.PI)
       }
-      const rayon = 28 / (2 * rapport)
-
-      ctx.arc(len, wid, rayon, 0, 2 * Math.PI)
-      //ctx.arc(len, wid, 2, 0, 2 * Math.PI)
+      if (teteNeg == 'centre') {
+        len = longueurCentre + (moinscenter.x / sizeProsthesis.l) * longueur
+        wid = largeurCentre + (moinscenter.y / sizeProsthesis.w) * largeur
+        const rayon = diamTete / (2 * rapport)
+        ctx.arc(len, wid, rayon, 0, 2 * Math.PI)
+      }
+      if (tete == 'centre') {
+        len = longueurCentre + (centerHead.x / sizeProsthesis.l) * longueur
+        wid = largeurCentre + (centerHead.y / sizeProsthesis.w) * largeur
+        const rayon = diamTete / (2 * rapport)
+        ctx.arc(len, wid, rayon, 0, 2 * Math.PI)
+      }
     }
-    //ctx.rotate(360 - (Math.PI / 180) * 35);
     ctx.restore()
-    /*ctx.translate(start.x, start.y)
-    ctx.rotate(end.y/10)
-    ctx.translate(-start.x, -start.y)*/
   })
+
+  return { x: len, y: wid }
 }
 
 function findAngle(
